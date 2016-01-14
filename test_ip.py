@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 from netobj.ipv4address import IPv4Address
 
