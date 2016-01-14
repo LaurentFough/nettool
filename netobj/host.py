@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import re
 from ipv4address import IPv4Address
+
+from validate import Validate
 
 
 class HostEntry(object):
@@ -13,7 +14,9 @@ class HostEntry(object):
         if isinstance(value, basestring):
             if '.' in value.strip('.'):
                 parts = value.split('.')
-                self.name = parts.pop(0)
+                name = parts.pop(0)
+                Validate.host(name)
+                self.name = name
                 self.domain = '.'.join(parts)
             else:
                 self.name = value
@@ -27,41 +30,6 @@ class HostEntry(object):
     @staticmethod
     def _clean_ip(value):
         return IPv4Address(value)
-
-    @staticmethod
-    def _validate_ip(value):
-        if not isinstance(value, IPv4Address):
-            IPv4Address(value)
-
-    @staticmethod
-    def _validate_base(value):
-        try:
-            if isinstance(value, unicode):
-                str(value)
-            else:
-                unicode(value, encoding='ascii')
-        except UnicodeDecodeError as e:
-            value = unicode(value, 'utf-8')
-            position = re.search(r'in position (\d+):', str(e)).group(1)
-            invalid_character = value[int(position)]
-            error_message = unicode(u"'{}' invalid character '{}'. Must use ASCII characters".format(value, invalid_character))
-            raise ValueError(error_message)
-        invalid_character_match = re.search(r'([^0-9a-z\-])', value.lower())
-        if invalid_character_match:
-            raise ValueError("'{}' invalid character \'{}\'.".format(value, invalid_character_match.group(1)))
-
-    @staticmethod
-    def _validate_name(value):
-        HostEntry._validate_base(value)
-        if len(value) < 1:
-            raise ValueError("'{}' hostname too short. Hostname be between 1-63 characters long".format(value))
-        if len(value) > 63:
-            raise ValueError("'{}' hostname too long. Hostname be between 1-63 characters long".format(value))
-
-    def _validate_domain(self, value):
-        fqdn = HostEntry._build_fqdn(self.name, value)
-        if len(fqdn) > 253:
-            raise ValueError("'{}' is too long. FQDN must be less than 254 characters".format(value))
 
     @staticmethod
     def _build_fqdn(hostname, domain):
@@ -102,7 +70,7 @@ class HostEntry(object):
             value = 'unknown'
         else:
             value = HostEntry._clean_name(value)
-            HostEntry._validate_name(value)
+            Validate.host(value)
         self._name = value
 
     @property
@@ -115,7 +83,7 @@ class HostEntry(object):
             value = ''
         else:
             value = HostEntry._clean_domain(value)
-            self._validate_domain(value)
+            Validate.fqdn(self._build_fqdn(self.name, value))
         self._domain = value
 
     @property
@@ -128,7 +96,7 @@ class HostEntry(object):
             value = None
         else:
             value = HostEntry._clean_ip(value)
-            HostEntry._validate_ip(value)
+            Validate.ip(value)
         self._ip = value
 
     def __str__(self):
@@ -238,7 +206,7 @@ class Host(HostEntryList):
     @display_name.setter
     def display_name(self, value):
         value = HostEntry._clean_name(value)
-        HostEntry._validate_name(value)
+        Validate.host(value)
         if value not in self._host_entries:
             raise ValueError('Invalid display name \'{}\'. Value not found in the hostname list'.format(value))
         else:

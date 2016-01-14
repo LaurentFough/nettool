@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from netobj.validate import Validate
 from netobj.host import Host, HostEntry, HostEntryList
 
 from nose.tools import assert_raises, assert_equals, assert_not_equals, assert_in, assert_not_in
@@ -82,10 +83,10 @@ class TestHostEntry(object):
 
     def test_validation_host_length(self):
         name_too_short = ''
-        assert_raises(ValueError, HostEntry._validate_name, name_too_short)
+        assert_raises(ValueError, Validate.host, name_too_short)
 
         name_too_long = 'x' * 64
-        assert_raises(ValueError, HostEntry._validate_name, name_too_long)
+        assert_raises(ValueError, Validate.host, name_too_long)
 
     def test_validation_domain_length(self):
         valid_hostname = 'hostname'
@@ -106,15 +107,15 @@ class TestHostEntry(object):
 
     def test_validation_host_character_set(self):
         invalid_encoding = u'høst'
-        assert_raises(ValueError, HostEntry._validate_name, invalid_encoding)
+        assert_raises(ValueError, Validate.host, invalid_encoding)
         invalid_character = 'h+st'
-        assert_raises(ValueError, HostEntry._validate_name, invalid_character)
+        assert_raises(ValueError, Validate.host, invalid_character)
 
     def test_validation_fqdn_character_set(self):
         invalid_encoding = u'høst'
-        assert_raises(ValueError, HostEntry._validate_name, invalid_encoding)
+        assert_raises(ValueError, Validate.host, invalid_encoding)
         invalid_character = 'h+st'
-        assert_raises(ValueError, HostEntry._validate_name, invalid_character)
+        assert_raises(ValueError, Validate.host, invalid_character)
 
     def test_initilization(self):
         hostname = 'host1'
