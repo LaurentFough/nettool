@@ -167,6 +167,11 @@ class TestHostEntryList(object):
 
 class TestHostEntry(object):
 
+    def test_initilization_ip(self):
+        h = HostEntry('test')
+        h.ip = '2.3.4.5'
+        assert_equals(h.ip, '2.3.4.5')
+
     def test_validation_host_length(self):
         name_too_short = ''
         assert_raises(ValueError, Validate.host, name_too_short)
@@ -185,11 +190,6 @@ class TestHostEntry(object):
         assert_raises(TypeError, setattr, h, 'ip', 1)
         assert_raises(ValueError, setattr, h, 'ip', '2.3.4.256')
         assert_raises(ValueError, setattr, h, 'ip', 'sadf')
-
-    def test_initilization_ip(self):
-        h = HostEntry('test')
-        h.ip = '2.3.4.5'
-        assert_equals(h.ip, '2.3.4.5')
 
     def test_validation_host_character_set(self):
         invalid_encoding = u'høst'
@@ -261,10 +261,38 @@ class TestHostEntry(object):
         assert_equals(host, ip)
 
     def test_eqality_hosts(self):
+        # Total match
         host1 = HostEntry('host1', '1.1.1.1')
         host2 = HostEntry('host1', '1.1.1.1')
         assert_equals(host1, host2)
-        host2 = HostEntry('host2', '1.1.1.1')
-        assert_equals(host1, host2)
-        host2 = HostEntry('host1.example.com', '2.2.2.2')
-        assert_equals(host1, host2)
+
+        # Hostname match
+        host3 = HostEntry('host1', '2.2.2.2')
+        assert_equals(host1, host3)
+        host3 = HostEntry('host1')
+        assert_equals(host1, host3)
+
+        # Name in FQDN match
+        host4 = HostEntry('host1.example.com', '3.3.3.3')
+        assert_equals(host1, host4)
+        host4 = HostEntry('host1.example.com')
+        assert_equals(host1, host4)
+
+        # FQDN match
+        host5 = HostEntry('host1.example.com', '4.4.4.4')
+        assert_equals(host4, host5)
+        host5 = HostEntry('host1.example.com')
+        assert_equals(host4, host5)
+
+        # IP match
+        host6 = HostEntry('host2', '1.1.1.1')
+        assert_equals(host1, host6)
+
+    def test_ineqality_hosts(self):
+        host1 = HostEntry('host1', '1.1.1.1')
+        host2 = HostEntry('host2', '2.2.2.2')
+        assert_not_equals(host1, host2)
+
+        host1 = HostEntry('host1', '1.1.1.1')
+        host2 = HostEntry('host', '2.2.2.2')
+        assert_not_equals(host1, host2)
