@@ -15,10 +15,80 @@ class TestHost(object):
         host = Host('test1')
         assert_equals(host.display_name, 'test1')
         assert_raises(ValueError, setattr, host, 'display_name', 'test2')
-        host.add('test2')
+        host._add('test2')
         assert_equals(host.display_name, 'test1')
         host.display_name = 'test2'
         assert_equals(host.display_name, 'test2')
+
+    def test_add(self):
+        host = Host(HostEntry('test1'))
+        host_entry_1 = HostEntry('test1')
+        assert_equals(len(host), 1)
+        host.add(host_entry_1)
+        assert_equals(len(host), 1)
+
+    def test_add_failure(self):
+        host = Host(HostEntry('test1'))
+        assert_raises(TypeError, host.add, list())
+        # Different host, add fails
+        host_entry_2 = HostEntry('test2')
+        assert_raises(ValueError, host.add, host_entry_2)
+
+    def test_add_fqdn_to_shortname(self):
+        # New fqdn updates the domain if exisiting domain is empty
+        host = Host(HostEntry('test1'))
+        assert_equals(host[0].fqdn, 'test1')
+        host_entry_2 = HostEntry('test1.example.com')
+        host.add(host_entry_2)
+        assert_equals(len(host), 1)
+        assert_equals(host[0].fqdn, host_entry_2.fqdn)
+
+    def test_add_ip_to_no_ip_host(self):
+        # New IP with matching hostnames updates existing hostentry's ip
+        host_entry_1 = HostEntry('test1.example.com')
+        host = Host(host_entry_1)
+        host_entry_2 = HostEntry('test1', '1.2.3.4')
+        host.add(host_entry_2)
+        assert_equals(len(host), 1)
+        assert_equals(host[0].fqdn, host_entry_1.fqdn)
+        assert_equals(host[0].ip, host_entry_2.ip)
+        host[0].ip = None
+        host_entry_3 = HostEntry('test1.example.com', '1.2.3.4')
+        host.add(host_entry_3)
+        assert_equals(len(host), 1)
+        assert_equals(host[0].fqdn, host_entry_3.fqdn)
+        assert_equals(host[0].ip, host_entry_3.ip)
+
+    def test_add_new_host_existing_ip(self):
+        # New Hostname with duplicate ip adds new host entry
+        host = Host(HostEntry('test1', '1.2.3.4'))
+        host_entry_3 = HostEntry('test2', '1.2.3.4')
+        host.add(host_entry_3)
+        assert_equals(len(host), 2)
+        assert_equals(host[-1].fqdn, host_entry_3.fqdn)
+        del host[-1]
+        assert_equals(len(host), 1)
+        host_entry_4 = HostEntry('test2.example.com', '1.2.3.4')
+        host.add(host_entry_4)
+        assert_equals(len(host), 2)
+        assert_equals(host[-1].fqdn, host_entry_4.fqdn)
+
+    def test_add_new_ip_existing_name(self):
+        # New Hostname with duplicate ip adds new host entry
+        host = Host(HostEntry('test1', '1.2.3.4'))
+        host.add(HostEntry('test1', '2.3.4.5'))
+        assert_equals(len(host), 2)
+        assert_equals(host[0].fqdn, 'test1')
+        assert_equals(host[1].fqdn, 'test1')
+        assert_equals(host[0].ip, '1.2.3.4')
+        assert_equals(host[1].ip, '2.3.4.5')
+        del host[-1]
+        host.add(HostEntry('test1.example.com', '2.3.4.5'))
+        assert_equals(len(host), 2)
+        assert_equals(host[0].fqdn, 'test1.example.com')
+        assert_equals(host[1].fqdn, 'test1.example.com')
+        assert_equals(host[0].ip, '1.2.3.4')
+        assert_equals(host[1].ip, '2.3.4.5')
 
     def test_str(self):
         host = Host('test1')
@@ -30,10 +100,26 @@ class TestHost(object):
 
 
 class TestHostEntryList(object):
-    def test_length(self):
+    def test_indexing(self):
+        hosts = HostEntryList()
+        hosts.add('test1')
+        assert_equals(hosts[0].name, 'test1')
+        hosts.add('test2')
+        assert_equals(hosts[1].name, 'test2')
+        assert_equals(hosts[-1].name, 'test2')
+
+    def test_deletion(self):
         hosts = HostEntryList()
         hosts.add('test1')
         assert_equals(len(hosts), 1)
+        hosts.add('test2')
+        assert_equals(len(hosts), 2)
+        del hosts[-1]
+        assert_equals(len(hosts), 1)
+
+    def test_length(self):
+        hosts = HostEntryList()
+        hosts.add('test1')
         hosts.add('test2')
         assert_equals(len(hosts), 2)
         hosts.add('test1')
@@ -163,6 +249,11 @@ class TestHostEntry(object):
         assert_equals(host1, hostname.split('.')[0])
         assert_not_equals(host1, 'example.com')
         assert_not_equals(host1, 'host')
+
+        # No IPs specified
+        host1 = HostEntry('test1')
+        host2 = HostEntry('test2')
+        assert_not_equals(host1, host2)
 
     def test_eqality_ip(self):
         ip = '1.1.1.1'
