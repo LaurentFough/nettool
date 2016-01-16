@@ -143,6 +143,13 @@ class HostEntryList(object):
         if value not in self:
             self._append(value)
 
+    def get(self, value):
+        if value in self:
+            for host in self:
+                if host == value:
+                    return host
+        return None
+
     def remove(self, value):
         """ Remove an entry from the host list """
         if value in self._host_entries:

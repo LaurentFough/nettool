@@ -161,6 +161,12 @@ class TestHostEntryList(object):
         assert_in('test1', hosts)
         assert_not_in('test2', hosts)
 
+    def test_get(self):
+        hosts = HostEntryList()
+        hosts.add('test')
+        assert_equals(hosts.get('test'), HostEntry('test'))
+        assert_equals(hosts.get('test1'), None)
+
     def test_contains(self):
         host = HostEntryList()
         host.add(HostEntry('test', '1.2.3.4'))
