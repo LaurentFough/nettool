@@ -14,13 +14,21 @@ class TestHost(object):
     def test_display_name(self):
         host = Host('test1')
         assert_equals(host.display_name, 'test1')
-        assert_raises(ValueError, setattr, host, 'display_name', 'test2')
         host._add('test2')
+        # assert_equals(host.display_name, 'test1')
+        # host.display_name = 'test2'
+        # assert_equals(host.display_name, 'test2')
+
+    def test_display_name_update(self):
+        host = Host('test1')
         assert_equals(host.display_name, 'test1')
-        host.display_name = 'test2'
-        assert_equals(host.display_name, 'test2')
+        host.add('test1.example.com')
+        # host.add(HostEntry('test1.example.com'))
+        assert_equals(host.display_name, 'test1.example.com')
 
     def test_add(self):
+        host = Host('test1')
+        assert_equals(len(host), 1)
         host = Host(HostEntry('test1'))
         host_entry_1 = HostEntry('test1')
         assert_equals(len(host), 1)
@@ -165,7 +173,14 @@ class TestHostEntryList(object):
         hosts = HostEntryList()
         hosts.add('test')
         assert_equals(hosts.get('test'), HostEntry('test'))
+        assert_equals(hosts.get('test'), HostEntry('test'))
+        assert_equals(hosts.get('test'), HostEntry('test'))
         assert_equals(hosts.get('test1'), None)
+        hosts.add('test.example.com')
+        assert_equals(hosts.get('test'), HostEntry('test'))
+        assert_equals(hosts.get('test.example.com'), HostEntry('test'))
+        assert_equals(hosts.get('test'), HostEntry('test.example.com'))
+        assert_equals(hosts.get('test.example.com'), HostEntry('test.example.com'))
 
     def test_contains(self):
         host = HostEntryList()

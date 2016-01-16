@@ -112,7 +112,7 @@ class HostEntry(object):
                 return ip == self.ip
             except:
                 pass
-            if '.' in value:
+            if '.' in value.rstrip('.'):
                 value = HostEntry._clean_fqdn(value)
                 return value == self.fqdn
             else:
@@ -134,20 +134,21 @@ class HostEntry(object):
 class HostEntryList(object):
     def __init__(self):
         self._host_entries = list()
+        self._itr_current = 0
 
     def add(self, value):
         """ Adds a new entry to the host list """
         self._add(value)
 
     def _add(self, value):
-        if value not in self:
+        if value not in self._host_entries:
             self._append(value)
 
     def get(self, value):
-        if value in self:
-            for host in self:
+        if value in self._host_entries:
+            for index, host in enumerate(self._host_entries):
                 if host == value:
-                    return host
+                    return self[index]
         return None
 
     def remove(self, value):
@@ -176,9 +177,6 @@ class HostEntryList(object):
         return self
 
     def next(self):
-        if not hasattr(self, '_itr_current'):
-            self._itr_current = 0
-
         if self._itr_current > len(self._host_entries) - 1:
             self._itr_current = 0
             raise StopIteration
@@ -206,35 +204,40 @@ class Host(HostEntryList):
     def __init__(self, value):
         super(Host, self).__init__()
         self._add(value)
+        self.display_name = value
 
     def __eq__(self, value):
         return self.__contains__(value)
 
     def add(self, value):
         """ Merges a value with existing host entry values """
+        if isinstance(value, basestring):
+            value = HostEntry(value)
+
         if not isinstance(value, HostEntry):
             raise TypeError('Can only add HostEntry types')
-        if value not in self:
+
+        if value not in self._host_entries:
             raise ValueError('Host {} does not belong to {}'.format(value, self))
         # If existing HostEntry matches the new one on all attributes, do nothing
-        for entry in self:
+        for entry in self._host_entries:
             if value.fqdn == entry.fqdn and entry.ip == value.ip:
                 return True
 
         # If existing HostEntry name matches but has no domain, add the domain to the existing HostEntry
-        for entry in self:
+        for entry in self._host_entries:
             if entry.name == value.name and not entry.domain:
                 entry.domain = value.domain
                 break
 
         # If existing HostEntry name matches but has no IP, add the IP to the existing HostEntry
-        for entry in self:
+        for entry in self._host_entries:
             if value.name == entry.name and not entry.ip:
                 entry.ip = value.ip
 
         # If existing HostEntry name matches but the ip is different, add the new entry to the list
         existing_hostname = False
-        for entry in self:
+        for entry in self._host_entries:
             if entry.fqdn == value.fqdn and entry.ip != value.ip:
                 existing_hostname = True
                 break
@@ -243,7 +246,7 @@ class Host(HostEntryList):
 
         # New hostname on an existing IP
         existing_ip = False
-        for entry in self:
+        for entry in self._host_entries:
             if entry.ip == value.ip and entry.name != value.name:
                 existing_ip = True
                 break
@@ -252,17 +255,30 @@ class Host(HostEntryList):
 
     @property
     def display_name(self):
-        if not hasattr(self, '_display_name'):
-            if not len(self._host_entries):
-                self._display_name = 'unknown'
-            else:
-                self._display_name = self._host_entries[0].name
-        return self._display_name
+        display = 'unknown'
+        if hasattr(self, '_display_name'):
+            existing = self.get(self._display_name)
+            if existing:
+                display = existing
+            elif len(self):
+                display = self._host_entries[0].fqdn
+                self._display_name = display
+        else:
+            if len(self._host_entries):
+                self._display_name = self._host_entries[0].fqdn
+                display = self.get(self._display_name)
+        return display
 
     @display_name.setter
     def display_name(self, value):
-        value = HostEntry._clean_name(value)
-        Validate.host(value)
+        if isinstance(value, HostEntry):
+            value = value.fqdn
+        if '.' in value:
+            value = HostEntry._clean_fqdn(value)
+            Validate.fqdn(value)
+        else:
+            value = HostEntry._clean_name(value)
+            Validate.host(value)
         if value not in self._host_entries:
             raise ValueError('Invalid display name \'{}\'. Value not found in the hostname list'.format(value))
         else:
