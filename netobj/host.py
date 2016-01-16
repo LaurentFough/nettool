@@ -200,6 +200,9 @@ class Host(HostEntryList):
         super(Host, self).__init__()
         self._add(value)
 
+    def __eq__(self, value):
+        return self.__contains__(value)
+
     def add(self, value):
         """ Merges a value with existing host entry values """
         if not isinstance(value, HostEntry):

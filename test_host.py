@@ -3,7 +3,7 @@
 from netobj.validate import Validate
 from netobj.host import Host, HostEntry, HostEntryList
 
-from nose.tools import assert_raises, assert_equals, assert_not_equals, assert_in, assert_not_in
+from nose.tools import assert_raises, assert_equals, assert_not_equals, assert_in, assert_not_in, assert_true, assert_false
 
 
 class TestHost(object):
@@ -90,6 +90,21 @@ class TestHost(object):
         assert_equals(host[0].ip, '1.2.3.4')
         assert_equals(host[1].ip, '2.3.4.5')
 
+    def test_equals(self):
+        """ Hosts are equal if there is one overlapping entry """
+        host = Host(HostEntry('test', '1.2.3.4'))
+        assert_true('test' in host)
+        assert_true(HostEntry('test') in host)
+        assert_true(HostEntry('test', '1.2.3.4') in host)
+        assert_true(HostEntry('test.example.com') in host)
+        assert_true(HostEntry('test.example.com', '1.2.3.4') in host)
+
+        assert_false('test1' in host)
+        assert_false(HostEntry('test1') in host)
+        assert_false(HostEntry('test1', '2.3.4.5') in host)
+        assert_false(HostEntry('test1.example.com') in host)
+        assert_false(HostEntry('test1.example.com', '2.3.4.5') in host)
+
     def test_str(self):
         host = Host('test1')
         assert_equals(host.__str__(), 'Host test1')
@@ -145,6 +160,21 @@ class TestHostEntryList(object):
         hosts.add('test1')
         assert_in('test1', hosts)
         assert_not_in('test2', hosts)
+
+    def test_contains(self):
+        host = HostEntryList()
+        host.add(HostEntry('test', '1.2.3.4'))
+        assert_true('test' in host)
+        assert_true(HostEntry('test') in host)
+        assert_true(HostEntry('test', '1.2.3.4') in host)
+        assert_true(HostEntry('test.example.com') in host)
+        assert_true(HostEntry('test.example.com', '1.2.3.4') in host)
+
+        assert_false('test1' in host)
+        assert_false(HostEntry('test1') in host)
+        assert_false(HostEntry('test1', '2.3.4.5') in host)
+        assert_false(HostEntry('test1.example.com') in host)
+        assert_false(HostEntry('test1.example.com', '2.3.4.5') in host)
 
     def test_repr(self):
         hosts = HostEntryList()
