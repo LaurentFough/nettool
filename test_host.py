@@ -176,7 +176,8 @@ class TestHostEntryList(object):
         assert_equals(len(hosts), 1)
         hosts.add(ip='1.1.1.1')
         assert_equals(len(hosts), 1)
-        hosts.add('test1')
+        hosts.add('1.1.1.1')
+        assert_equals(len(hosts), 1)
 
     def test_get(self):
         hosts = HostEntryList()
@@ -236,6 +237,7 @@ class TestHostEntry(object):
         h = HostEntry('test')
         h.ip = '2.3.4.5'
         assert_equals(h.ip, '2.3.4.5')
+        assert_raises(ValueError, HostEntry, '1.2.3.4', '2.3.4.5')
 
     def test_validation_host_length(self):
         name_too_short = ''

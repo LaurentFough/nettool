@@ -7,10 +7,20 @@ from validate import Validate
 
 class HostEntry(object):
     def __init__(self, name=None, ip=None):
+        try:
+            Validate.ip(name)
+        except ValueError:
+            pass
+        else:
+            if ip is not None:
+                raise ValueError('Two conflicting IPs specified: {} & {}'.format(name, ip))
+            ip = name
+            name = None
         self._initialize_name(name)
         self._initialize_ip(ip)
 
     def _initialize_name(self, value):
+        self.domain = ''
         if isinstance(value, basestring):
             if '.' in value.strip('.'):
                 parts = value.split('.')
@@ -20,7 +30,6 @@ class HostEntry(object):
                 self.domain = '.'.join(parts)
             else:
                 self.name = value
-                self.domain = ''
         elif value is None:
             self.name = None
         else:
@@ -62,6 +71,8 @@ class HostEntry(object):
 
     @property
     def name(self):
+        if not hasattr(self, '_name'):
+            self._name = None
         return self._name
 
     @name.setter
@@ -79,9 +90,7 @@ class HostEntry(object):
 
     @domain.setter
     def domain(self, value):
-        if value is None:
-            value = None
-        else:
+        if value is not None and self.name is not None:
             value = HostEntry._clean_domain(value)
             Validate.fqdn(self._build_fqdn(self.name, value))
         self._domain = value
@@ -103,7 +112,7 @@ class HostEntry(object):
     def __str__(self):
         hostname = HostEntry._build_fqdn(self.name, self.domain)
         if hostname is None:
-            hostname = 'Unknown'
+            hostname = self.ip
         return hostname
 
     def __repr__(self):
@@ -204,11 +213,16 @@ class HostEntryList(object):
         return 'HostList ({})'.format(len(self._host_entries))
 
     def __repr__(self):
-        if len(self._host_entries) > 3:
-            sample = ', '.join([str(x) for x in self._host_entries[0:3]])
-        else:
-            sample = ', '.join([str(x) for x in self._host_entries])
-        return '<HostList \'{}\'>'.format(sample)
+        sample = list()
+        for host in self._host_entries:
+            if len(sample) > 2:
+                break
+            if host.fqdn is not None:
+                sample.append(host.fqdn)
+            else:
+                sample.append(str(host.ip))
+        output = ', '.join(sample)
+        return '<HostList \'{}\'>'.format(output)
 
 
 class Host(HostEntryList):
