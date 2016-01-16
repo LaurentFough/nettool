@@ -168,6 +168,16 @@ class TestHostEntryList(object):
         assert_in('test1', hosts)
         assert_not_in('test2', hosts)
 
+    def test_add_fail(self):
+        hosts = HostEntryList()
+        hosts.add('test1', '1.1.1.1')
+        assert_equals(len(hosts), 1)
+        assert_raises(TypeError, hosts.add)
+        assert_equals(len(hosts), 1)
+        hosts.add(ip='1.1.1.1')
+        assert_equals(len(hosts), 1)
+        hosts.add('test1')
+
     def test_get(self):
         hosts = HostEntryList()
         hosts.add('test')

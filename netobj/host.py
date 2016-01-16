@@ -6,7 +6,7 @@ from validate import Validate
 
 
 class HostEntry(object):
-    def __init__(self, name, ip=None):
+    def __init__(self, name=None, ip=None):
         self._initialize_name(name)
         self._initialize_ip(ip)
 
@@ -21,6 +21,8 @@ class HostEntry(object):
             else:
                 self.name = value
                 self.domain = ''
+        elif value is None:
+            self.name = None
         else:
             raise TypeError("Invalid type used in Name initilization: '{}'.".format(type(value).__name__))
 
@@ -30,6 +32,8 @@ class HostEntry(object):
     @staticmethod
     def _build_fqdn(hostname, domain):
         fqdn = ''
+        if hostname is None:
+            return None
         if len(domain) > 0:
             fqdn = '.'.join([hostname, domain])
         else:
@@ -63,7 +67,7 @@ class HostEntry(object):
     @name.setter
     def name(self, value):
         if value is None:
-            value = 'unknown'
+            value = None
         else:
             value = HostEntry._clean_name(value)
             Validate.host(value)
@@ -76,7 +80,7 @@ class HostEntry(object):
     @domain.setter
     def domain(self, value):
         if value is None:
-            value = ''
+            value = None
         else:
             value = HostEntry._clean_domain(value)
             Validate.fqdn(self._build_fqdn(self.name, value))
@@ -97,13 +101,19 @@ class HostEntry(object):
         self._ip = value
 
     def __str__(self):
-        return HostEntry._build_fqdn(self.name, self.domain)
+        hostname = HostEntry._build_fqdn(self.name, self.domain)
+        if hostname is None:
+            hostname = 'Unknown'
+        return hostname
 
     def __repr__(self):
+        hostname = HostEntry._build_fqdn(self.name, self.domain)
+        if hostname is None:
+            hostname = 'Unknown'
         ip = ''
         if self.ip:
             ip = ' {}'.format(self.ip)
-        return '<Host {}{}>'.format(HostEntry._build_fqdn(self.name, self.domain), ip)
+        return '<Host {}{}>'.format(hostname, ip)
 
     def __eq__(self, value):
         if isinstance(value, basestring):
@@ -136,12 +146,14 @@ class HostEntryList(object):
         self._host_entries = list()
         self._itr_current = 0
 
-    def add(self, value, ip=None):
+    def add(self, value=None, ip=None):
         """ Adds a new entry to the host list """
-        self._add(value, ip=None)
+        if value is None and ip is None:
+            raise TypeError('add requires at least 1 argument. (0 given)')
+        self._add(value, ip=ip)
 
-    def _add(self, value, ip=None):
-        if value not in self or (ip and ip not in self):
+    def _add(self, value=None, ip=None):
+        if (value and value not in self) or (ip and ip not in self):
             self._append(value, ip)
 
     def get(self, value):
