@@ -110,7 +110,7 @@ class HostEntry(object):
             try:
                 ip = IPv4Address(value)
                 return ip == self.ip
-            except:
+            except ValueError:
                 pass
             if '.' in value.rstrip('.'):
                 value = HostEntry._clean_fqdn(value)
@@ -136,13 +136,13 @@ class HostEntryList(object):
         self._host_entries = list()
         self._itr_current = 0
 
-    def add(self, value):
+    def add(self, value, ip=None):
         """ Adds a new entry to the host list """
-        self._add(value)
+        self._add(value, ip=None)
 
-    def _add(self, value):
-        if value not in self._host_entries:
-            self._append(value)
+    def _add(self, value, ip=None):
+        if value not in self or (ip and ip not in self):
+            self._append(value, ip)
 
     def get(self, value):
         if value in self._host_entries:
@@ -156,14 +156,15 @@ class HostEntryList(object):
         if value in self._host_entries:
             self._host_entries.remove(value)
 
-    def _append(self, value):
+    def _append(self, value, ip=None):
         if not isinstance(value, HostEntry):
-            value = HostEntry(value)
+            value = HostEntry(value, ip=ip)
         self._host_entries.append(value)
 
     def __contains__(self, value):
         for host_entry in self._host_entries:
             if host_entry == value:
+                self._itr_current = 0
                 return True
         return False
 
@@ -201,18 +202,21 @@ class HostEntryList(object):
 class Host(HostEntryList):
     """ Represents all the names and IPs referring to the same host """
 
-    def __init__(self, value):
+    def __init__(self, value, ip=None):
         super(Host, self).__init__()
-        self._add(value)
+        self._add(value, ip)
         self.display_name = value
 
     def __eq__(self, value):
         return self.__contains__(value)
 
-    def add(self, value):
+    def add(self, value, ip=None):
         """ Merges a value with existing host entry values """
         if isinstance(value, basestring):
-            value = HostEntry(value)
+            if ip:
+                value = HostEntry(value, ip=ip)
+            else:
+                value = HostEntry(value)
 
         if not isinstance(value, HostEntry):
             raise TypeError('Can only add HostEntry types')

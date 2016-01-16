@@ -181,7 +181,7 @@ class TestHostEntryList(object):
         assert_equals(hosts.get('test'), HostEntry('test.example.com'))
         assert_equals(hosts.get('test.example.com'), HostEntry('test.example.com'))
 
-    def test_contains(self):
+    def test_contains_host(self):
         host = HostEntryList()
         host.add(HostEntry('test', '1.2.3.4'))
         assert_true('test' in host)
@@ -195,6 +195,11 @@ class TestHostEntryList(object):
         assert_false(HostEntry('test1', '2.3.4.5') in host)
         assert_false(HostEntry('test1.example.com') in host)
         assert_false(HostEntry('test1.example.com', '2.3.4.5') in host)
+
+    def test_contains_ip(self):
+        host = Host('test1', '1.2.3.4')
+        assert_in('1.2.3.4', host)
+        assert_not_in('2.3.4.5', host)
 
     def test_repr(self):
         hosts = HostEntryList()
