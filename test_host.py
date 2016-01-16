@@ -15,15 +15,14 @@ class TestHost(object):
         host = Host('test1')
         assert_equals(host.display_name, 'test1')
         host._add('test2')
-        # assert_equals(host.display_name, 'test1')
-        # host.display_name = 'test2'
-        # assert_equals(host.display_name, 'test2')
+        assert_equals(host.display_name, 'test1')
+        host.display_name = 'test2'
+        assert_equals(host.display_name, 'test2')
 
     def test_display_name_update(self):
         host = Host('test1')
         assert_equals(host.display_name, 'test1')
         host.add('test1.example.com')
-        # host.add(HostEntry('test1.example.com'))
         assert_equals(host.display_name, 'test1.example.com')
 
     def test_add(self):
