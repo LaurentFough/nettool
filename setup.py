@@ -18,18 +18,18 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='netobj',
+    name='nettool',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
     version='0.1a8',
 
-    description='Network objects',
+    description='Network Tools',
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/heyglen/netobj',
+    url='https://github.com/heyglen/nettool',
 
     # Author details
     author='Glen Harmon',

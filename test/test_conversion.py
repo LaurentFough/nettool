@@ -2,34 +2,16 @@
 
 import ipaddress
 
-from nose.tools import assert_equals, assert_raises, assert_true, assert_false
+from nose.tools import assert_equals, assert_raises
 
-from netobj.nutility import NUtility
+from nettool.nutility import NUtility
 
 
-class TestNetTool(object):
+class TestConversion(object):
 
     def setup(self):
         self.netmasks = [ipaddress.IPv4Interface(unicode('255.255.255.255/{0}'.format(x))).network.network_address.exploded for x in range(0, 33)]
         self.wildcards = [ipaddress.IPv4Interface(unicode('0.0.0.0/{0}'.format(x))).network.hostmask.exploded for x in range(0, 33)]
-
-    def test_netmask_validation(self):
-        for netmask in self.netmasks:
-            assert_true(NUtility.validate.netmask(netmask))
-        assert_false(NUtility.validate.netmask('netmask'))
-        assert_false(NUtility.validate.netmask(33))
-
-    def test_wildcard_validation(self):
-        for wildcard in self.wildcards:
-            assert_true(NUtility.validate.wildcard(wildcard))
-        assert_false(NUtility.validate.wildcard('wildcard'))
-        assert_false(NUtility.validate.wildcard(33))
-
-    def test_prefix_validation(self):
-        for wildcard in self.wildcards:
-            assert_true(NUtility.validate.wildcard(wildcard))
-        assert_false(NUtility.validate.wildcard('wildcard'))
-        assert_false(NUtility.validate.wildcard(33))
 
     def test_netmask_to_wildcard_conversion(self):
         for index, netmask in enumerate(self.netmasks):
