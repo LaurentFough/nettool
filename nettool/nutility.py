@@ -42,23 +42,42 @@ class NUtility(object):
 
         @staticmethod
         def ip(value):
-            if not isinstance(value, IPv4Address):
-                IPv4Address(value)
+            try:
+                if not isinstance(value, IPv4Address):
+                    IPv4Address(value)
+            except (ValueError, TypeError):
+                return False
+            return True
 
         @staticmethod
-        def host(host):
+        def network(value):
+            if not isinstance(value, basestring):
+                return False
             try:
-                NUtility.validate._host_base_checks(host)
-                if len(host) < 1:
-                    raise ValueError("'{}' host too short. Hostname be between 1-63 characters long".format(host))
-                if len(host) > 63:
-                    raise ValueError("'{}' host too long. Hostname be between 1-63 characters long".format(host))
+                value = unicode(value)
+                ipaddress.IPv4Interface(value)
+            except (ValueError, TypeError):
+                return False
+            return True
+
+        @staticmethod
+        def host(value):
+            if not isinstance(value, basestring):
+                return False
+            try:
+                NUtility.validate._host_base_checks(value)
+                if len(value) < 1:
+                    raise ValueError("'{}' host too short. Hostname be between 1-63 characters long".format(value))
+                if len(value) > 63:
+                    raise ValueError("'{}' host too long. Hostname be between 1-63 characters long".format(value))
             except ValueError:
                 return False
             return True
 
         @staticmethod
         def hostname(value):
+            if not isinstance(value, basestring):
+                return False
             try:
                 if len(value) > 253:
                     raise ValueError("'{}' is too long. FQDN must be less than 254 characters".format(value))

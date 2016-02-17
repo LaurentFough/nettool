@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from netobj.ipv4address import IPv4Address
+from nettool.ipv4address import IPv4Address
 
 from nose.tools import assert_equals
 

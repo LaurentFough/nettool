@@ -36,6 +36,7 @@ class TestValidation(object):
         assert_false(nu.validate.host(''))
         assert_false(nu.validate.host('x' * 64))
         assert_false(nu.validate.host(':'))
+        assert_false(nu.validate.host(20))
         assert_true(nu.validate.host('host'))
 
     def test_hostname_validation(self):
@@ -43,4 +44,23 @@ class TestValidation(object):
         assert_false(nu.validate.hostname(''))
         assert_false(nu.validate.hostname('x' * 64))
         assert_false(nu.validate.hostname(':'))
+        assert_false(nu.validate.hostname(20))
         assert_true(nu.validate.hostname('host'))
+
+    def test_ip_validation(self):
+        assert_true(nu.validate.ip('1.2.3.4'))
+        assert_true(nu.validate.ip(u'1.2.3.4'))
+        assert_false(nu.validate.ip(u'256.2.3.4'))
+        assert_false(nu.validate.ip('host'))
+        assert_false(nu.validate.ip(''))
+        assert_false(nu.validate.ip(1))
+
+    def test_network_validation(self):
+        assert_true(nu.validate.network('1.2.3.4/32'))
+        assert_true(nu.validate.network('1.2.3.4/0'))
+        assert_true(nu.validate.network('1.2.3.4'))
+        assert_true(nu.validate.network(u'1.2.3.4'))
+        assert_false(nu.validate.network(u'256.2.3.4'))
+        assert_false(nu.validate.network('host'))
+        assert_false(nu.validate.network(''))
+        assert_false(nu.validate.network(1))

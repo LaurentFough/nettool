@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from netobj.validate import Validate
-from netobj.host import Host, HostEntry, HostEntryList
+from nettool.validate import Validate
+from nettool.host import Host, HostEntry, HostEntryList
 
 from nose.tools import assert_raises, assert_equals, assert_not_equals, assert_in, assert_not_in, assert_true, assert_false
 
