@@ -1,11 +1,9 @@
-# Network Objects
+# Net Tool
 
-Python network objects
-
-IT related python objects
+Network objects for network admins
 
 Structure
-  * netobj
+  * nettool
     * host
       * Host
     * nutility
@@ -14,19 +12,19 @@ Structure
 ## Install
 
 ```bash
-pip install git+git://github.com/heyglen/netobj.git#egg=netobj
+pip install git+git://github.com/heyglen/nettool.git#egg=nettool
 ```
 
 ## Uninstall
 
 ```bash
-pip uninstall netobj -y
+pip uninstall nettool -y
 ```
 
 # Usage
 
 ```python
-from netobj.nutility import NUtility as nu
+from nettool.nutility import NUtility as nu
 
 wildcard = nu.convert.netmask.wildcard('255.255.0.0')
 # wildcard = '0.0.255.255'
