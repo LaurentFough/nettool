@@ -21,16 +21,20 @@ pip install git+git://github.com/heyglen/nettool.git#egg=nettool
 pip uninstall nettool -y
 ```
 
-# Usage
+# Example Usage
 
 ```python
 from nettool.nutility import NUtility as nu
 
-wildcard = nu.convert.netmask.wildcard('255.255.0.0')
-# wildcard = '0.0.255.255'
-netmask = nu.convert.wildcard.netmask('0.0.255.255')
-# netmask = '255.255.0.0'
-prefix = nu.convertnetmask.prefix('255.255.0.0')
-# prefix = 16
+nu.convert.netmask.wildcard('255.255.0.0')  # '0.0.255.255'
+nu.convert.wildcard.netmask('0.0.255.255')  # '255.255.0.0'
+nu.convertnetmask.prefix('255.255.0.0')     # 16
+
+nu.validate.network('10.0.0.0/8')        # True
+nu.validate.ip('10.0.0.1')               # True
+nu.validate.hostname('host.example.com') # True
+nu.validate.netmask('255.255.255.0')     # True
+nu.validate.wildcard('0.0.0.255')        # True
+nu.validate.prefix(27)                   # True
 
 ```
