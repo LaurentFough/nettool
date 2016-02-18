@@ -130,7 +130,8 @@ class NUtility(object):
 
             @staticmethod
             def _base_host_coerce(value):
-                replacements = ((' ', '-'), ('(', '-'), (')', '-'), ('_', '-'), )
+                replacements = ((' ', '-'), ('(', '-'), (')', '-'), ('_', '-'),
+                    ('/', '-'), ('\\', '-'), ('--', '-'), )
                 for before, after in replacements:
                     value = value.replace(before, after)
                 strips = ('-', '.')
