@@ -120,7 +120,7 @@ class NUtility(object):
             for domain_level in value.split('.'):
                 if not NUtility.validate.host(domain_level):
                     if raise_exception:
-                        raise ValueError("Inalid domain level name '{}' in hostname {}.".format(domain_level, value))
+                        raise ValueError("Inalid domain level name '{}' in hostname '{}'.".format(domain_level, value))
                     return False
             return True
 
@@ -131,7 +131,7 @@ class NUtility(object):
             @staticmethod
             def _base_host_coerce(value):
                 replacements = ((' ', '-'), ('(', '-'), (')', '-'), ('_', '-'),
-                    ('/', '-'), ('\\', '-'), ('--', '-'), )
+                                ('/', '-'), ('\\', '-'), ('--', '-'), )
                 for before, after in replacements:
                     value = value.replace(before, after)
                 strips = ('-', '.')
@@ -139,6 +139,7 @@ class NUtility(object):
                     value = value.strip(strip)
                 value = value.strip()
                 value = value.lower()
+                value = unicode(value)
                 value = unidecode(value)
                 return value
 
