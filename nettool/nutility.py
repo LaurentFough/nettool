@@ -4,6 +4,7 @@ import re
 import ipaddress
 
 from ipv4address import IPv4Address
+from unidecode import unidecode
 
 
 class NUtility(object):
@@ -12,19 +13,62 @@ class NUtility(object):
 
     class validate(object):
         @staticmethod
-        def netmask(netmask):
-            return netmask in NUtility.netmasks
+        def netmask(netmask, raise_exception=False):
+            valid = netmask in NUtility.netmasks
+            if not valid and raise_exception:
+                raise ValueError('Invalid netmask {}'.format(netmask))
+            return valid
 
         @staticmethod
-        def wildcard(wildcard):
-            return wildcard in NUtility.wildcards
+        def wildcard(wildcard, raise_exception=False):
+            valid = wildcard in NUtility.wildcards
+            if not valid and raise_exception:
+                raise ValueError('Invalid wildcard {}'.format(wildcard))
+            return valid
 
         @staticmethod
-        def prefix(prefix):
-            return prefix in range(0, 33)
+        def prefix(prefix, raise_exception=False):
+            valid = prefix in range(0, 33)
+            if not valid and raise_exception:
+                raise ValueError('Invalid prefix {}'.format(prefix))
+            return valid
 
         @staticmethod
-        def _host_base_checks(value):
+        def ip(value, raise_exception=False):
+            if not isinstance(value, basestring):
+                if raise_exception:
+                    raise ValueError('Invalid type \'{}\''.format(type(value)))
+                return False
+            try:
+                if not isinstance(value, IPv4Address):
+                    IPv4Address(value)
+            except (ValueError, TypeError):
+                if raise_exception:
+                    raise
+                return False
+            return True
+
+        @staticmethod
+        def network(value, raise_exception=False):
+            if not isinstance(value, basestring):
+                if raise_exception:
+                    raise ValueError('Invalid type \'{}\''.format(type(value)))
+                return False
+            try:
+                value = unicode(value)
+                ipaddress.IPv4Interface(value)
+            except (ValueError, TypeError):
+                if raise_exception:
+                    raise
+                return False
+            return True
+
+        @staticmethod
+        def _host_base_checks(value, raise_exception=False):
+            if not isinstance(value, basestring):
+                if raise_exception:
+                    raise ValueError('Invalid type \'{}\''.format(type(value)))
+                return False
             try:
                 if isinstance(value, unicode):
                     str(value)
@@ -35,58 +79,79 @@ class NUtility(object):
                 position = re.search(r'in position (\d+):', str(e)).group(1)
                 invalid_character = value[int(position)]
                 error_message = unicode(u"'{}' invalid character '{}'. Must use ASCII characters".format(value, invalid_character))
-                raise ValueError(error_message)
+                if raise_exception:
+                    raise ValueError(error_message)
+                return False
             invalid_character_match = re.search(r'([^0-9a-z\-])', value.lower())
             if invalid_character_match:
-                raise ValueError("'{}' invalid character \'{}\'.".format(value, invalid_character_match.group(1)))
-
-        @staticmethod
-        def ip(value):
-            try:
-                if not isinstance(value, IPv4Address):
-                    IPv4Address(value)
-            except (ValueError, TypeError):
+                if raise_exception:
+                    raise ValueError("'{}' invalid character \'{}\'.".format(value, invalid_character_match.group(1)))
                 return False
             return True
 
         @staticmethod
-        def network(value):
+        def host(value, raise_exception=False):
             if not isinstance(value, basestring):
+                if raise_exception:
+                    raise ValueError('Invalid type \'{}\''.format(type(value)))
                 return False
-            try:
-                value = unicode(value)
-                ipaddress.IPv4Interface(value)
-            except (ValueError, TypeError):
+            if not NUtility.validate._host_base_checks(value, raise_exception=raise_exception):
                 return False
-            return True
-
-        @staticmethod
-        def host(value):
-            if not isinstance(value, basestring):
-                return False
-            try:
-                NUtility.validate._host_base_checks(value)
-                if len(value) < 1:
+            if len(value) < 1:
+                if raise_exception:
                     raise ValueError("'{}' host too short. Hostname be between 1-63 characters long".format(value))
-                if len(value) > 63:
+                return False
+            if len(value) > 63:
+                if raise_exception:
                     raise ValueError("'{}' host too long. Hostname be between 1-63 characters long".format(value))
-            except ValueError:
                 return False
             return True
 
         @staticmethod
-        def hostname(value):
+        def hostname(value, raise_exception=False):
             if not isinstance(value, basestring):
+                if raise_exception:
+                    raise ValueError('Invalid type \'{}\''.format(type(value)))
                 return False
-            try:
-                if len(value) > 253:
+            if len(value) > 253:
+                if raise_exception:
                     raise ValueError("'{}' is too long. FQDN must be less than 254 characters".format(value))
-                for part in value.split('.'):
-                    if not NUtility.validate.host(part):
-                        return False
-            except ValueError:
                 return False
+            for domain_level in value.split('.'):
+                if not NUtility.validate.host(domain_level):
+                    if raise_exception:
+                        raise ValueError("Inalid domain level name '{}' in hostname {}.".format(domain_level, value))
+                    return False
             return True
+
+    class coerce(object):
+
+        class string(object):
+
+            @staticmethod
+            def _base_host_coerce(value):
+                replacements = ((' ', '-'), ('(', '-'), (')', '-'), ('_', '-'), )
+                for before, after in replacements:
+                    value = value.replace(before, after)
+                strips = ('-', '.')
+                for strip in strips:
+                    value = value.strip(strip)
+                value = value.strip()
+                value = value.lower()
+                value = unidecode(value)
+                return value
+
+            @staticmethod
+            def host(value):
+                value = NUtility.coerce.string._base_host_coerce(value)
+                NUtility.validate.host(value, raise_exception=True)
+                return value
+
+            @staticmethod
+            def hostname(value):
+                value = NUtility.coerce.string._base_host_coerce(value)
+                NUtility.validate.hostname(value, raise_exception=True)
+                return value
 
     class convert(object):
 
