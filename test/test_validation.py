@@ -10,8 +10,11 @@ from nettool.nutility import NUtility as nu
 class TestValidation(object):
 
     def setup(self):
-        self.netmasks = [ipaddress.IPv4Interface(unicode('255.255.255.255/{0}'.format(x))).network.network_address.exploded for x in range(0, 33)]
-        self.wildcards = [ipaddress.IPv4Interface(unicode('0.0.0.0/{0}'.format(x))).network.hostmask.exploded for x in range(0, 33)]
+        self.wildcards = [ipaddress.IPv4Interface(
+            unicode('0.0.0.0/{}'.format(x))).network.hostmask.exploded for x in range(0, 33)]
+        self.netmasks = [ipaddress.IPv4Interface(
+            unicode('255.255.255.255/{}'.format(x)))
+            .network.network_address.exploded for x in range(0, 33)]
 
     def test_netmask_validation(self):
         for netmask in self.netmasks:
@@ -77,3 +80,36 @@ class TestValidation(object):
         assert_false(nu.validate.network(1))
         assert_raises(ValueError, nu.validate.network, 1, True)
         assert_raises(ValueError, nu.validate.network, 'not a network', True)
+
+    def test_port_validation(self):
+        assert_true(nu.validate._port(1))
+        assert_true(nu.validate._port(65535))
+        assert_true(nu.validate._port('1'))
+        assert_false(nu.validate._port('port'))
+        assert_false(nu.validate._port(0))
+        assert_false(nu.validate._port(65536))
+        assert_raises(TypeError, nu.validate._port, 'port', True)
+        assert_raises(ValueError, nu.validate._port, 0, True)
+        assert_raises(ValueError, nu.validate._port, 65536, True)
+
+    def test_tcp_port_validation(self):
+        assert_true(nu.validate.tcp_port(1))
+        assert_true(nu.validate.tcp_port(65535))
+        assert_true(nu.validate.tcp_port('1'))
+        assert_false(nu.validate.tcp_port('port'))
+        assert_false(nu.validate.tcp_port(0))
+        assert_false(nu.validate.tcp_port(65536))
+        assert_raises(TypeError, nu.validate.tcp_port, 'port', True)
+        assert_raises(ValueError, nu.validate.tcp_port, 0, True)
+        assert_raises(ValueError, nu.validate.tcp_port, 65536, True)
+
+    def test_udp_port_validation(self):
+        assert_true(nu.validate.udp_port(1))
+        assert_true(nu.validate.udp_port(65535))
+        assert_true(nu.validate.udp_port('1'))
+        assert_false(nu.validate.udp_port('port'))
+        assert_false(nu.validate.udp_port(0))
+        assert_false(nu.validate.udp_port(65536))
+        assert_raises(TypeError, nu.validate.udp_port, 'port', True)
+        assert_raises(ValueError, nu.validate.udp_port, 0, True)
+        assert_raises(ValueError, nu.validate.udp_port, 65536, True)

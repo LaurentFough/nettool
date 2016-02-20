@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from nose.tools import assert_equals, assert_raises
+from nose.tools import assert_equals, assert_not_equals, assert_raises
+from nose.tools import assert_true, assert_false
 
 from nettool.ip_layer import IPLayer
 
@@ -8,7 +9,7 @@ from nettool.ip_layer import IPLayer
 class TestIPLayer(object):
 
     def setup(self):
-        pass
+        self.invalid_values = (1, False, True, 'network')
 
     def test_initialization(self):
         assert_equals(IPLayer(source='1.2.3.4').source, '1.2.3.4/32')
@@ -23,8 +24,9 @@ class TestIPLayer(object):
         assert_equals(layer.destination, '0.0.0.0/0')
 
     def test_initialization_invalid(self):
-        assert_raises(ValueError, IPLayer, 1, '1.2.3.4')
-        assert_raises(ValueError, IPLayer, '1.2.3.4', 2)
+        for value in self.invalid_values:
+            assert_raises(ValueError, IPLayer, value, '1.2.3.4')
+            assert_raises(ValueError, IPLayer, '1.2.3.4', value)
 
     def test_setter(self):
         layer = IPLayer()
@@ -34,5 +36,41 @@ class TestIPLayer(object):
         assert_equals(layer.destination, '1.2.3.0/24')
 
     def test_setter_invalid(self):
-        assert_raises(ValueError, setattr, IPLayer(), 'source', 1)
-        assert_raises(ValueError, setattr, IPLayer(), 'destination', 1)
+        for value in self.invalid_values:
+            assert_raises(ValueError, setattr, IPLayer(), 'source', value)
+            assert_raises(ValueError, setattr, IPLayer(), 'destination', value)
+
+    def test_repr(self):
+        layer = IPLayer()
+        assert_equals(layer.__repr__(), '<IPLayer 0.0.0.0/0 0.0.0.0/0>')
+        layer.source = '10.0.0.0/8'
+        assert_equals(layer.__repr__(), '<IPLayer 10.0.0.0/8 0.0.0.0/0>')
+        layer.destination = '192.168.2.1/16'
+        assert_equals(layer.__repr__(), '<IPLayer 10.0.0.0/8 192.168.0.0/16>')
+
+    def test_equality(self):
+        layer_a = IPLayer(source='1.2.3.4')
+        layer_b = IPLayer(source='1.2.3.4')
+        assert_equals(layer_a, layer_b)
+
+    def test_inequality(self):
+        layer_a = IPLayer(source='1.2.3.4')
+        layer_b = IPLayer(source='1.2.3.5')
+        assert_not_equals(layer_a, layer_b)
+
+    def test_equality_invalid(self):
+        layer = IPLayer()
+        for value in self.invalid_values:
+            assert_raises(TypeError, layer.__eq__, value)
+
+    def test_contains(self):
+        layer_narrow = IPLayer(source='1.2.3.0/24')
+        layer_wide = IPLayer()
+        assert_true(layer_narrow in layer_wide)
+        assert_false(layer_narrow not in layer_wide)
+        assert_true(layer_wide not in layer_narrow)
+
+    def test_contains_invalid(self):
+        layer = IPLayer()
+        for value in self.invalid_values:
+            assert_raises(TypeError, layer.__contains__, value)

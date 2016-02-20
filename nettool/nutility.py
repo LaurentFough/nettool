@@ -8,10 +8,36 @@ from unidecode import unidecode
 
 
 class NUtility(object):
-    wildcards = [ipaddress.IPv4Interface(unicode('0.0.0.0/{0}'.format(x))).network.hostmask.exploded for x in range(0, 33)]
-    netmasks = [ipaddress.IPv4Interface(unicode('255.255.255.255/{0}'.format(x))).network.network_address.exploded for x in range(0, 33)]
+    wildcards = [ipaddress.IPv4Interface(
+        unicode('0.0.0.0/{}'.format(x))).network.hostmask.exploded for x in range(0, 33)]
+    netmasks = [ipaddress.IPv4Interface(
+        unicode('255.255.255.255/{}'.format(x)))
+        .network.network_address.exploded for x in range(0, 33)]
 
     class validate(object):
+        @staticmethod
+        def _port(port, raise_exception=False):
+            if isinstance(port, basestring) and port.isdigit():
+                port = int(port)
+            elif type(port) is not int:
+                if raise_exception:
+                    message = 'Invalid port type \'{}\'.'
+                    raise TypeError(message.format(type(port)))
+                return False
+            valid = port > 0 and port < 65536
+            if not valid and raise_exception:
+                message = 'Invalid port number \'{}\'. Must be between {}-{}'
+                raise ValueError(message.format(port, 1, 65535))
+            return valid
+
+        @staticmethod
+        def tcp_port(port, raise_exception=False):
+            return NUtility.validate._port(port, raise_exception=raise_exception)
+
+        @staticmethod
+        def udp_port(port, raise_exception=False):
+            return NUtility.validate._port(port, raise_exception=raise_exception)
+
         @staticmethod
         def netmask(netmask, raise_exception=False):
             valid = netmask in NUtility.netmasks
@@ -78,14 +104,17 @@ class NUtility(object):
                 value = unicode(value, 'utf-8')
                 position = re.search(r'in position (\d+):', str(e)).group(1)
                 invalid_character = value[int(position)]
-                error_message = unicode(u"'{}' invalid character '{}'. Must use ASCII characters".format(value, invalid_character))
+                error_message = u"'{}' invalid character '{}'. Must use ASCII characters"
+                error_message = error_message.format(value, invalid_character)
                 if raise_exception:
                     raise ValueError(error_message)
                 return False
             invalid_character_match = re.search(r'([^0-9a-z\-])', value.lower())
             if invalid_character_match:
                 if raise_exception:
-                    raise ValueError("'{}' invalid character \'{}\'.".format(value, invalid_character_match.group(1)))
+                    message = "'{}' invalid character \'{}\'."
+                    message = message.format(value, invalid_character_match.group(1))
+                    raise ValueError(message)
                 return False
             return True
 
@@ -99,11 +128,15 @@ class NUtility(object):
                 return False
             if len(value) < 1:
                 if raise_exception:
-                    raise ValueError("'{}' host too short. Hostname be between 1-63 characters long".format(value))
+                    message = "'{}' host too short. Hostname be between 1-63 characters long"
+                    message = message.format(value)
+                    raise ValueError(message)
                 return False
             if len(value) > 63:
                 if raise_exception:
-                    raise ValueError("'{}' host too long. Hostname be between 1-63 characters long".format(value))
+                    message = "'{}' host too long. Hostname be between 1-63 characters long"
+                    message = message.format(value)
+                    raise ValueError(message)
                 return False
             return True
 
@@ -115,12 +148,16 @@ class NUtility(object):
                 return False
             if len(value) > 253:
                 if raise_exception:
-                    raise ValueError("'{}' is too long. FQDN must be less than 254 characters".format(value))
+                    message = "'{}' is too long. FQDN must be less than 254 characters"
+                    message = message.format(value)
+                    raise ValueError(message)
                 return False
             for domain_level in value.split('.'):
                 if not NUtility.validate.host(domain_level):
                     if raise_exception:
-                        raise ValueError("Inalid domain level name '{}' in hostname '{}'.".format(domain_level, value))
+                        message = "Inalid domain level name '{}' in hostname '{}'."
+                        message = message.format(domain_level, value)
+                        raise ValueError(message)
                     return False
             return True
 

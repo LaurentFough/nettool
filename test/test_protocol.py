@@ -7,9 +7,6 @@ from nettool.protocol_layer import ProtocolLayer
 
 class TestProtocolLayer(object):
 
-    def setup(self):
-        pass
-
     def test_initialization(self):
         assert_equals(ProtocolLayer(name='ip').name, 'ip')
 
