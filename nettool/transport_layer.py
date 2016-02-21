@@ -55,7 +55,6 @@ class TransportLayer(object):
 
     def __contains__(self, key):
         if isinstance(key, TransportLayer):
-            valid = True
             for side in ('source', 'destination'):
                 for key_address in getattr(key, side).addresses:
                     if key_address not in getattr(self, side):
