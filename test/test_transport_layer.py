@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from nose.tools import assert_equals, assert_raises, assert_not_equals, assert_true
-from nose.tools import assert_false
+from nose.tools import assert_equals, assert_raises, assert_not_equals
+from nose.tools import assert_is_instance, assert_in, assert_not_in
 
 from nettool.transport_layer import TransportLayer
+from nettool.transport_group import TransportGroup
 
 
 class TestTransportLayer(object):
@@ -12,82 +13,70 @@ class TestTransportLayer(object):
         self.invalid_port_values = (0, 65536)
         self.invalid_port_types = (True, False, 'port')
 
+    def test_initialization(self):
+        pass
+
     def test_initialization_defaults(self):
         layer = TransportLayer()
-        assert_equals(layer.low, 1)
-        assert_equals(layer.high, 65535)
-
-    def test_initialization(self):
-        assert_equals(TransportLayer(1).low, 1)
-        assert_equals(TransportLayer(1).high, 1)
-        assert_equals(TransportLayer(high=1).low, 1)
-        assert_equals(TransportLayer(high=1).high, 1)
-        assert_equals(TransportLayer(low=1, high=2).low, 1)
-        assert_equals(TransportLayer(low=1, high=2).high, 2)
-        assert_equals(TransportLayer(low='1', high='2').low, 1)
+        assert_is_instance(layer.source, TransportGroup)
+        assert_is_instance(layer.destination, TransportGroup)
 
     def test_initialization_invalid(self):
         for value in self.invalid_port_values:
-            assert_raises(ValueError, TransportLayer, value)
+            pass
+            # assert_raises(ValueError, TransportLayer, value)
         for value in self.invalid_port_types:
-            assert_raises(TypeError, TransportLayer, value)
+            pass
+            # assert_raises(TypeError, TransportLayer, value)
 
     def test_setter(self):
         layer = TransportLayer()
-        layer.low = 1
-        assert_equals(layer.low, 1)
-        layer.high = 1
-        assert_equals(layer.high, 1)
+        for side in ('source', 'destination'):
+            setattr(layer, side, '2-5')
+            side_attr = getattr(layer, side)
+            print side_attr
+            assert_is_instance(side_attr, TransportGroup)
+            assert_in(2, side_attr)
+            assert_in(5, side_attr)
+            print side
+            assert_not_in(6, side_attr)
+            assert_not_in(1, side_attr)
 
     def test_setter_invalid(self):
-        for attr in ('low', 'high'):
-            for value in self.invalid_port_values:
-                assert_raises(ValueError, setattr, TransportLayer(), attr, value)
-            for value in self.invalid_port_types:
-                assert_raises(TypeError, setattr, TransportLayer(), attr, value)
+        layer = TransportLayer()
+        assert_raises(ValueError, setattr, layer, 'source', 'invalid')
 
     def test_repr(self):
         layer = TransportLayer()
-        assert_equals(layer.__repr__(), '<TransportLayer 1-65535>')
-        layer.low = 3
-        assert_equals(layer.__repr__(), '<TransportLayer 3-65535>')
-        layer.high = 3
-        assert_equals(layer.__repr__(), '<TransportLayer 3>')
-        layer.high = 5
-        assert_equals(layer.__repr__(), '<TransportLayer 3-5>')
+        layer.source.name = 'src'
+        layer.destination.name = 'dst'
+        assert_equals(layer.__repr__(), "<TransportLayer 'src' 'dst'>")
 
     def test_equality(self):
-        layer_a = TransportLayer()
-        layer_b = TransportLayer()
-        assert_equals(layer_a, layer_b)
+        layer01 = TransportLayer()
+        layer02 = TransportLayer()
+        assert_equals(layer01, layer02)
+        layer01.source.add('1-2')
+        layer02.source.add('1-2')
+        assert_equals(layer01, layer02)
+        layer01.destination.add('1-2')
+        layer02.destination.add('1-2')
+        assert_equals(layer01, layer02)
 
     def test_inequality(self):
-        layer_a = TransportLayer()
-        layer_b = TransportLayer(high=2)
-        assert_not_equals(layer_a, layer_b)
-        layer_a.low = 2
-        layer_b.high = 65535
-        assert_not_equals(layer_a, layer_b)
+        layer01 = TransportLayer()
+        layer02 = TransportLayer()
+        layer01.source.add('1-2')
+        assert_not_equals(layer01, layer02)
+        layer02.source.add('1-2')
+        layer01.destination.add('1-2')
+        assert_not_equals(layer01, layer02)
 
-    def test_contains_single_port(self):
-        layer_a = TransportLayer()
-        assert_true(2 in layer_a)
-        assert_false(2 not in layer_a)
-        layer_b = TransportLayer(low=2, high=5)
-        assert_false(1 in layer_b)
-        assert_true(1 not in layer_b)
-
-    def test_contains_transport_layer(self):
-        layer_narrow = TransportLayer(low=2, high=5)
-        layer_wide = TransportLayer()
-        assert_true(layer_narrow in layer_wide)
-        assert_false(layer_narrow not in layer_wide)
-        assert_false(layer_wide in layer_narrow)
-        assert_true(layer_wide not in layer_narrow)
-
-    def test_contains_invalid(self):
-        layer = TransportLayer()
-        for value in self.invalid_port_values:
-            assert_raises(ValueError, layer.__contains__, value)
-        for value in self.invalid_port_types:
-            assert_raises(TypeError, layer.__contains__, value)
+    def test_contains(self):
+        layer01 = TransportLayer()
+        layer01.source.add('1-2')
+        layer02 = TransportLayer()
+        # assert_in(layer01, layer02)
+        s = layer02.destination
+        print s in layer01.destination
+        assert_not_in(layer02, layer01)

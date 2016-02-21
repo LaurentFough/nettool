@@ -12,6 +12,25 @@ class IPLayer(object):
         self.destination = destination
 
     @staticmethod
+    def from_string(value):
+        if isinstance(value, basestring):
+            value = IPLayer._clean_ip_layer_string(value)
+            networks = value.split()
+            if len(networks) == 2:
+                source, destination = networks
+                valid = nu.validate.network(source)
+                valid = valid and nu.validate.network(destination)
+                if valid:
+                    return IPLayer(source=source, destination=destination)
+        message = 'Unsupported string initializer \'{}\''
+        message = message.format(value)
+        raise ValueError(message)
+
+    @staticmethod
+    def _clean_ip_layer_string(value):
+        return value.strip().replace('  ', ' ')
+
+    @staticmethod
     def _clean_network(network):
         if network is None:
             network = IPLayer._default_network
@@ -58,10 +77,5 @@ class IPLayer(object):
             message = 'Cannot test if {} contains {} types.'
             message = message.format(class_name, type(key).__name__)
             raise TypeError(message)
-
-        # TODO: Not working
-        # print self._source.network
-        # print key._source.network
-        # print self._source.network.__contains__(key._source.network)
-        return self._source.network.__contains__(key._source.network) and \
-            self._destination.network.__contains__(key._destination.network)
+        return key._source.network.subnet_of(self._source.network) and \
+            key._destination.network.subnet_of(self._destination.network)

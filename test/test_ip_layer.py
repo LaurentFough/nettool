@@ -68,9 +68,25 @@ class TestIPLayer(object):
         layer_wide = IPLayer()
         assert_true(layer_narrow in layer_wide)
         assert_false(layer_narrow not in layer_wide)
+
         assert_true(layer_wide not in layer_narrow)
 
     def test_contains_invalid(self):
         layer = IPLayer()
         for value in self.invalid_values:
             assert_raises(TypeError, layer.__contains__, value)
+
+    def test_from_string(self):
+        from_string = IPLayer.from_string
+        layer = from_string('0.0.0.0/0 1.2.3.4/24')
+        assert_equals(layer.source, '0.0.0.0/0')
+        assert_equals(layer.destination, '1.2.3.0/24')
+        layer = from_string('0.0.0.0 1.2.3.4')
+        assert_equals(layer.source, '0.0.0.0/32')
+        assert_equals(layer.destination, '1.2.3.4/32')
+
+    def test_from_string_invalid(self):
+        from_string = IPLayer.from_string
+        invalid_strings = (1, False, '0.0.0.0 1')
+        for value in invalid_strings:
+            assert_raises(ValueError, from_string, value)
