@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from nose.plugins.attrib import attr as tag
 from nose.tools import assert_equals, assert_raises, assert_not_equals, assert_true
 from nose.tools import assert_false, assert_in, assert_not_in, assert_is_instance
 
@@ -124,7 +123,6 @@ class TestTransportGroup(object):
         group_b.add(address02)
         assert_not_equals(group_a, group_b)
 
-    @tag('now')
     def test_contains_single_port(self):
         group = TransportGroup()
         assert_in(2, group)
