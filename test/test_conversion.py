@@ -67,6 +67,7 @@ class TestConversion(object):
         assert_equals(nu.coerce.string.hostname(u'å.example.com'), 'a.example.com')
         assert_equals(nu.coerce.string.hostname('host/a.example.com'), 'host-a.example.com')
         assert_equals(nu.coerce.string.hostname('host\\a.example.com'), 'host-a.example.com')
+        assert_equals(nu.coerce.string.hostname('host:a.example.com'), 'host-a.example.com')
 
     def test_coerce_string_to_host(self):
         assert_equals(nu.coerce.string.hostname('host name'), 'host-name')
