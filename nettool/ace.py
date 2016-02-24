@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from ip_layer import IPLayer
-from protocol_layer import ProtocolLayer
+from nettool.network_layer import NetworkLayer
+# from nettool.protocol_layer import ProtocolLayer
 
 
 class Ace(object):
@@ -9,10 +9,10 @@ class Ace(object):
     def __init__(self, acl_type=None, line_number=None, permit=None,
                  protocol=None, source=None, source_port_low=None,
                  source_port_high=None, source_established=None, destination=None,
-                 destination_port_low=None, destination_port_high=None, destination_established=None,
-                 logging=None, hits=None):
-        self._protocol_layer = ProtocolLayer(protocol)
-        self._ip_layer = IPLayer(source, destination)
+                 destination_port_low=None, destination_port_high=None,
+                 destination_established=None, logging=None, hits=None):
+        # self._protocol_layer = ProtocolLayer(protocol)
+        self._ip_layer = NetworkLayer(source, destination)
 
         self.acl_type = acl_type
         self.line_number = line_number
