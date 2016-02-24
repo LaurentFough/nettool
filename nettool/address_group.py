@@ -40,21 +40,21 @@ class AddressGroup(object):
 
     def has(self, value):
         """ Returns True if the address is in the group """
-        value = self._build_address(value)
+        value = self.address_from_string(value)
         for address in self.addresses:
             if address == value:
                 return True
         return False
 
     def add(self, address):
-        address = self._build_address(address)
+        address = self.address_from_string(address)
         existing = self.has(address)
         if not existing:
             self._addresses.append(address)
         return not existing
 
     def remove(self, value):
-        value = self._build_address(value)
+        value = self.address_from_string(value)
         remove_index = None
         for index, address in enumerate(self._addresses):
             if address == value:
@@ -81,3 +81,28 @@ class AddressGroup(object):
     def __len__(self):
         return len(self._addresses)
 
+    def __contains__(self, key):
+        valid_types = (self._address_type, self.__class__, )
+        if not isinstance(key, valid_types):
+            key = self.address_from_string(key)
+        if not isinstance(key, valid_types):
+            raise_type_exception(key, valid_types, 'test membership of')
+        if isinstance(key, self.__class__):
+            found = False
+            for key_address in key.addresses:
+                for self_address in self.addresses:
+                    if self._is_member(key_address, self_address):
+                        found = True
+                        break
+                if not found:
+                    return False
+                found = False
+            return True
+        elif isinstance(key, self._address_type):
+            for address in self.addresses:
+                if self._is_member(key, address):
+                    return True
+            return False
+        else:
+            raise_type_exception(key, valid_types, 'membership')
+        return False

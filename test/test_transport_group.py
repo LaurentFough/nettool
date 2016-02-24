@@ -54,9 +54,9 @@ class TestTransportGroup(object):
         assert_true(group.add('25-27'))
         assert_false(group.add(address03))
 
-    def test_build_transport_address_invalid(self):
+    def test_address_from_string_invalid(self):
         group = TransportGroup()
-        assert_raises(TypeError, group._build_transport_address, True)
+        assert_raises(TypeError, group.address_from_string, True)
 
     def test_has(self):
         group = TransportGroup()

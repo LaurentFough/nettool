@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from ipaddress import IPv4Network
-from nose.tools import assert_equals, assert_true, assert_raises
+from nose.tools import assert_equals, assert_not_equals, assert_true, assert_raises
 from nose.tools import assert_false, assert_in, assert_not_in, assert_is_instance
 from nettool.network_group import NetworkGroup
 
@@ -28,9 +28,9 @@ class TestNetworkGroup(object):
         assert_false(group.add(self.address01))
         assert_false(group.add(address04))
 
-    def test_build_address_invalid(self):
+    def test_address_from_string_invalid(self):
         for value in self.invalid_types:
-            assert_raises(TypeError, NetworkGroup._build_address, value)
+            assert_raises(TypeError, NetworkGroup.address_from_string, value)
 
     def test_has(self):
         group = NetworkGroup()
@@ -57,20 +57,42 @@ class TestNetworkGroup(object):
         assert_false(group.has(self.address02))
 
     def test_repr(self):
-        pass
-        # TODO: Finish testing NetworkGroup and Fix TransportGroup to inherit AddressGroup
+        group = NetworkGroup()
+        assert_equals(group.__repr__(), "<NetworkGroup [u'0.0.0.0/0']>")
+        group.add(self.address01)
+        assert_equals(group.__repr__(), "<NetworkGroup [u'10.0.0.0/8']>")
+        group.add(self.address02)
+        assert_equals(group.__repr__(), "<NetworkGroup [u'10.0.0.0/8', u'192.168.0.0/16']>")
 
     def test_equality(self):
-        pass
+        group01 = NetworkGroup()
+        group02 = NetworkGroup()
+        assert_equals(group01, group02)
+        group01.add(self.address01)
+        group02.add(self.address01)
+        assert_equals(group01, group02)
 
     def test_inequality(self):
-        pass
+        group01 = NetworkGroup()
+        group02 = NetworkGroup()
+        group01.add(self.address01)
+        assert_not_equals(group01, group02)
+        group02.add(self.address01)
+        assert_not_equals(group01, group02)
 
-    def test_contains_single_port(self):
-        pass
+    def test_contains(self):
+        group = NetworkGroup()
+        assert_in('10.0.0.0/8', group)
+        group.add(self.address01)
+        assert_in('10.0.0.0/8', group)
+        assert_not_in('11.0.0.0/8', group)
+        assert_not_in('0.0.0.0/0', group)
 
-    def test_contains_transport_layer(self):
-        pass
+    def test_contains_invalid(self):
+        group = NetworkGroup()
+        for value in self.invalid_types:
+            assert_raises(TypeError, group.__contains__, value)
 
     def test_from_string(self):
-        pass
+        group = NetworkGroup.from_string('10.0.0.0/8')
+        assert_is_instance(group, NetworkGroup)
