@@ -27,6 +27,10 @@ class TestHostname(object):
         h = Hostname(valid_hostname)
         assert_raises(ValueError, setattr, h, 'domain', invalid_domain)
 
+    def test_str(self):
+        h = Hostname(name=None, ip='1.2.3.4')
+        assert_equals(h, '1.2.3.4')
+
     def test_validation_ip(self):
         h = Hostname('test', '1.2.3.4')
         assert_raises(TypeError, setattr, h, 'ip', 1)

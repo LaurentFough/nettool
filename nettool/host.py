@@ -2,13 +2,14 @@
 
 from ipv4address import IPv4Address
 
+from nettool.nutility import NUtility as nu
 from validate import Validate
 
 
 class Hostname(object):
     def __init__(self, name=None, ip=None):
         try:
-            Validate.ip(name)
+            nu.validate.ip(name, raise_exception=True)
         except ValueError:
             pass
         else:
@@ -17,7 +18,7 @@ class Hostname(object):
             ip = name
             name = None
         self._initialize_name(name)
-        self._initialize_ip(ip)
+        self.ip = ip
 
     def _initialize_name(self, value):
         self.domain = ''
@@ -25,7 +26,7 @@ class Hostname(object):
             if '.' in value.strip('.'):
                 parts = value.split('.')
                 name = parts.pop(0)
-                Validate.host(name)
+                nu.validate.host(name)
                 self.name = name
                 self.domain = '.'.join(parts)
             else:
@@ -35,8 +36,8 @@ class Hostname(object):
         else:
             raise TypeError("Invalid type used in Name initilization: '{}'.".format(type(value).__name__))
 
-    def _initialize_ip(self, value):
-        self.ip = value
+    # def _initialize_ip(self, value):
+    #     self.ip = value
 
     @staticmethod
     def _build_fqdn(hostname, domain):
@@ -81,7 +82,7 @@ class Hostname(object):
             value = None
         else:
             value = Hostname._clean_name(value)
-            Validate.host(value)
+            nu.validate.host(value)
         self._name = value
 
     @property
@@ -92,7 +93,7 @@ class Hostname(object):
     def domain(self, value):
         if value is not None and self.name is not None:
             value = Hostname._clean_domain(value)
-            Validate.fqdn(self._build_fqdn(self.name, value))
+            nu.validate.hostname(self._build_fqdn(self.name, value), raise_exception=True)
         self._domain = value
 
     @property
@@ -112,8 +113,8 @@ class Hostname(object):
     def __str__(self):
         hostname = Hostname._build_fqdn(self.name, self.domain)
         if hostname is None:
-            hostname = self.ip
-        return hostname
+            hostname = self.ip.exploded
+        return '{}'.format(hostname)
 
     def __repr__(self):
         hostname = Hostname._build_fqdn(self.name, self.domain)
