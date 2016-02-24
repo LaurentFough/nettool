@@ -34,7 +34,7 @@ class TransportAddress(object):
                     else:
                         address = TransportAddress(low=low, high=high)
                     return address
-        message = 'Unsupported string initializer \'{}\''
+        message = 'Unsupported string initialization format \'{}\''
         message = message.format(value)
         raise ValueError(message)
 
