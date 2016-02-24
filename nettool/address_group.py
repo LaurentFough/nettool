@@ -69,8 +69,10 @@ class AddressGroup(object):
         return '<{} {}>'.format(self.__class__.__name__, entries)
 
     def __eq__(self, key):
+        if isinstance(key, basestring):
+            key = self.from_string(key)
         if not isinstance(key, self.__class__):
-            self._raise_type_exception(self, key, (self.__class__, ), 'test equality of')
+            raise_type_exception(key, (self.__class__, ), 'test equality of')
         if len(key) == self.__len__():
             for address in self._addresses:
                 if not key.has(address):
