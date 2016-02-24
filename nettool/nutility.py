@@ -169,6 +169,8 @@ class NUtility(object):
             def _base_host_coerce(value):
                 replacements = ((' ', '-'), ('(', '-'), (')', '-'), ('_', '-'),
                                 ('/', '-'), ('\\', '-'), (':', '-'), ('--', '-'), )
+                value = unicode(value)
+                value = unidecode(value)
                 for before, after in replacements:
                     value = value.replace(before, after)
                 strips = ('-', '.')
@@ -176,8 +178,6 @@ class NUtility(object):
                     value = value.strip(strip)
                 value = value.strip()
                 value = value.lower()
-                value = unicode(value)
-                value = unidecode(value)
                 return value
 
             @staticmethod

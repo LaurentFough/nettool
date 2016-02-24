@@ -138,10 +138,12 @@ class HostEntry(object):
                 value = HostEntry._clean_name(value)
                 return value == self.name
         elif isinstance(value, HostEntry):
-            if self.fqdn == value.fqdn:
-                return True
-            if self.name == value.name:
-                return True
+            if self.domain and value.domain:
+                if self.fqdn == value.fqdn:
+                    return True
+            else:
+                if self.name == value.name:
+                    return True
             if self.ip and self.ip == value.ip:
                 return True
         return False
