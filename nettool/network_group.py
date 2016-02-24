@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ipaddress import IPv4Interface, IPv4Network
+from ipaddress import IPv4Interface, IPv4Network, AddressValueError
 from nettool._tools import raise_type_exception
 from nettool.address_group import AddressGroup
 from nettool.nutility import NUtility as nu
@@ -23,7 +23,12 @@ class NetworkGroup(AddressGroup):
     @staticmethod
     def address_from_string(value):
         if isinstance(value, (basestring)):
-            value = IPv4Interface(unicode(value)).network
+            try:
+                value = IPv4Interface(unicode(value)).network
+            except AddressValueError:
+                message = 'Unsupported string initialization format \'{}\''
+                message = message.format(value)
+                raise ValueError(message)
         elif not isinstance(value, IPv4Network):
             raise_type_exception(value, (IPv4Network, ), 'build with')
         return value
