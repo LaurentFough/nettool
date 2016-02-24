@@ -5,7 +5,7 @@ from ipv4address import IPv4Address
 from validate import Validate
 
 
-class HostEntry(object):
+class Hostname(object):
     def __init__(self, name=None, ip=None):
         try:
             Validate.ip(name)
@@ -55,15 +55,15 @@ class HostEntry(object):
 
     @staticmethod
     def _clean_fqdn(value):
-        return HostEntry._clean_base(value).strip('.')
+        return Hostname._clean_base(value).strip('.')
 
     @staticmethod
     def _clean_domain(value):
-        return HostEntry._clean_base(value).strip('.')
+        return Hostname._clean_base(value).strip('.')
 
     @staticmethod
     def _clean_name(value):
-        return HostEntry._clean_base(value)
+        return Hostname._clean_base(value)
 
     @property
     def fqdn(self):
@@ -80,7 +80,7 @@ class HostEntry(object):
         if value is None:
             value = None
         else:
-            value = HostEntry._clean_name(value)
+            value = Hostname._clean_name(value)
             Validate.host(value)
         self._name = value
 
@@ -91,7 +91,7 @@ class HostEntry(object):
     @domain.setter
     def domain(self, value):
         if value is not None and self.name is not None:
-            value = HostEntry._clean_domain(value)
+            value = Hostname._clean_domain(value)
             Validate.fqdn(self._build_fqdn(self.name, value))
         self._domain = value
 
@@ -110,13 +110,13 @@ class HostEntry(object):
         self._ip = value
 
     def __str__(self):
-        hostname = HostEntry._build_fqdn(self.name, self.domain)
+        hostname = Hostname._build_fqdn(self.name, self.domain)
         if hostname is None:
             hostname = self.ip
         return hostname
 
     def __repr__(self):
-        hostname = HostEntry._build_fqdn(self.name, self.domain)
+        hostname = Hostname._build_fqdn(self.name, self.domain)
         if hostname is None:
             hostname = 'Unknown'
         ip = ''
@@ -132,12 +132,12 @@ class HostEntry(object):
             except ValueError:
                 pass
             if '.' in value.rstrip('.'):
-                value = HostEntry._clean_fqdn(value)
+                value = Hostname._clean_fqdn(value)
                 return value == self.fqdn
             else:
-                value = HostEntry._clean_name(value)
+                value = Hostname._clean_name(value)
                 return value == self.name
-        elif isinstance(value, HostEntry):
+        elif isinstance(value, Hostname):
             if self.domain and value.domain:
                 if self.fqdn == value.fqdn:
                     return True
@@ -152,7 +152,7 @@ class HostEntry(object):
         return not self.__eq__(value)
 
 
-class HostEntryList(object):
+class HostnameList(object):
     def __init__(self):
         self._host_entries = list()
         self._itr_current = 0
@@ -180,8 +180,8 @@ class HostEntryList(object):
             self._host_entries.remove(value)
 
     def _append(self, value, ip=None):
-        if not isinstance(value, HostEntry):
-            value = HostEntry(value, ip=ip)
+        if not isinstance(value, Hostname):
+            value = Hostname(value, ip=ip)
         self._host_entries.append(value)
 
     def __contains__(self, value):
@@ -227,7 +227,7 @@ class HostEntryList(object):
         return '<HostList \'{}\'>'.format(output)
 
 
-class Host(HostEntryList):
+class Host(HostnameList):
     """ Represents all the names and IPs referring to the same host """
 
     def __init__(self, value, ip=None):
@@ -242,32 +242,32 @@ class Host(HostEntryList):
         """ Merges a value with existing host entry values """
         if isinstance(value, basestring):
             if ip:
-                value = HostEntry(value, ip=ip)
+                value = Hostname(value, ip=ip)
             else:
-                value = HostEntry(value)
+                value = Hostname(value)
 
-        if not isinstance(value, HostEntry):
-            raise TypeError('Can only add HostEntry types')
+        if not isinstance(value, Hostname):
+            raise TypeError('Can only add Hostname types')
 
         if value not in self._host_entries:
             raise ValueError('Host {} does not belong to {}'.format(value, self))
-        # If existing HostEntry matches the new one on all attributes, do nothing
+        # If existing Hostname matches the new one on all attributes, do nothing
         for entry in self._host_entries:
             if value.fqdn == entry.fqdn and entry.ip == value.ip:
                 return True
 
-        # If existing HostEntry name matches but has no domain, add the domain to the existing HostEntry
+        # If existing Hostname name matches but has no domain, add the domain to the existing Hostname
         for entry in self._host_entries:
             if entry.name == value.name and not entry.domain:
                 entry.domain = value.domain
                 break
 
-        # If existing HostEntry name matches but has no IP, add the IP to the existing HostEntry
+        # If existing Hostname name matches but has no IP, add the IP to the existing Hostname
         for entry in self._host_entries:
             if value.name == entry.name and not entry.ip:
                 entry.ip = value.ip
 
-        # If existing HostEntry name matches but the ip is different, add the new entry to the list
+        # If existing Hostname name matches but the ip is different, add the new entry to the list
         existing_hostname = False
         for entry in self._host_entries:
             if entry.fqdn == value.fqdn and entry.ip != value.ip:
@@ -303,13 +303,13 @@ class Host(HostEntryList):
 
     @display_name.setter
     def display_name(self, value):
-        if isinstance(value, HostEntry):
+        if isinstance(value, Hostname):
             value = value.fqdn
         if '.' in value:
-            value = HostEntry._clean_fqdn(value)
+            value = Hostname._clean_fqdn(value)
             Validate.fqdn(value)
         else:
-            value = HostEntry._clean_name(value)
+            value = Hostname._clean_name(value)
             Validate.host(value)
         if value not in self._host_entries:
             raise ValueError('Invalid display name \'{}\'. Value not found in the hostname list'.format(value))
