@@ -4,6 +4,7 @@ from nettool._tools import list_repr, raise_type_exception
 
 
 class AddressGroup(object):
+    _address_name = 'Generic'
     _default_name = 'Group'
     _default_address = None
 
@@ -84,7 +85,7 @@ class AddressGroup(object):
         return len(self._addresses)
 
     def __contains__(self, key):
-        valid_types = (self._address_type, self.__class__, )
+        valid_types = self._address_type + (self.__class__, )
         if not isinstance(key, valid_types):
             key = self.address_from_string(key)
         if not isinstance(key, valid_types):

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from nettool.transport_address import TransportAddress
+from nettool.tcp_address import TcpAddress
+from nettool.udp_address import UdpAddress
 from nettool._tools import raise_type_exception
 from nettool.address_group import AddressGroup
 
@@ -8,7 +10,7 @@ from nettool.address_group import AddressGroup
 class TransportGroup(AddressGroup):
     _default_name = 'Transport Group'
     _default_address = TransportAddress()
-    _address_type = TransportAddress
+    _address_type = (TransportAddress, TcpAddress, UdpAddress)
 
     def __init__(self, name=None):
         self.name = name

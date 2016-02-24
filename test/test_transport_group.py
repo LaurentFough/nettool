@@ -5,6 +5,8 @@ from nose.tools import assert_false, assert_in, assert_not_in, assert_is_instanc
 
 from nettool.transport_group import TransportGroup
 from nettool.transport_address import TransportAddress
+from nettool.tcp_address import TcpAddress
+from nettool.udp_address import UdpAddress
 
 
 class TestTransportGroup(object):
@@ -12,6 +14,7 @@ class TestTransportGroup(object):
     def setup(self):
         # self.invalid_name_values = (0, 65536)
         self.invalid_name_types = (True, False, 1)
+        self.group = TransportGroup()
 
     def test_initialization_defaults(self):
         group = TransportGroup()
@@ -53,6 +56,13 @@ class TestTransportGroup(object):
         assert_false(group.add(address01))
         assert_true(group.add('25-27'))
         assert_false(group.add(address03))
+
+    def test_add_mixed_ports(self):
+        group = TransportGroup()
+        group.add(TransportAddress.from_string('1-3'))
+        group.add(TcpAddress.from_string('1-3'))
+        group.add(UdpAddress.from_string('1-3'))
+        assert_equals(len(group), 3)
 
     def test_address_from_string_invalid(self):
         group = TransportGroup()

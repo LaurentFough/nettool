@@ -9,7 +9,7 @@ from nettool.nutility import NUtility as nu
 class NetworkGroup(AddressGroup):
     _default_name = 'Network Group'
     _default_address = IPv4Network(u'0.0.0.0/0')
-    _address_type = IPv4Network
+    _address_type = (IPv4Network, )
 
     @staticmethod
     def _clean_address(network):
