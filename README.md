@@ -1,5 +1,8 @@
 # Net Tool
 
+[![Build Status](https://travis-ci.org/heyglen/nettool.svg?branch=master)](https://travis-ci.org/heyglen/nettool)
+[![Coverage Status](https://coveralls.io/repos/github/heyglen/nettool/badge.svg?branch=master)](https://coveralls.io/github/heyglen/nettool?branch=master)
+
 Network objects for network admins
 
 Structure
