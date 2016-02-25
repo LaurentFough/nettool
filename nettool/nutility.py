@@ -3,7 +3,7 @@
 import re
 import ipaddress
 
-from ipv4address import IPv4Address
+# from ipv4address import IPv4Address
 from unidecode import unidecode
 
 
@@ -63,11 +63,12 @@ class NUtility(object):
         def ip(value, raise_exception=False):
             if not isinstance(value, basestring):
                 if raise_exception:
-                    raise ValueError('Invalid type \'{}\''.format(type(value)))
+                    raise TypeError('Invalid type \'{}\''.format(type(value)))
                 return False
+            else:
+                value = unicode(value)
             try:
-                if not isinstance(value, IPv4Address):
-                    IPv4Address(value)
+                ipaddress.IPv4Address(value)
             except (ValueError, TypeError):
                 if raise_exception:
                     raise
@@ -169,8 +170,6 @@ class NUtility(object):
             def _base_host_coerce(value):
                 replacements = ((' ', '-'), ('(', '-'), (')', '-'), ('_', '-'),
                                 ('/', '-'), ('\\', '-'), (':', '-'), ('--', '-'), )
-                value = unicode(value)
-                value = unidecode(value)
                 for before, after in replacements:
                     value = value.replace(before, after)
                 strips = ('-', '.')
@@ -178,6 +177,8 @@ class NUtility(object):
                     value = value.strip(strip)
                 value = value.strip()
                 value = value.lower()
+                value = unicode(value)
+                value = unidecode(value)
                 return value
 
             @staticmethod
