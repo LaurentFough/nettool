@@ -8,6 +8,8 @@ from nettool.nutility import NUtility as nu
 
 class Hostname(object):
     def __init__(self, name=None, ip=None):
+        if isinstance(ip, basestring) and not ip.strip():
+            ip = None
         if ip is None and nu.validate.ip(name):
             self.ip = name
             name = None

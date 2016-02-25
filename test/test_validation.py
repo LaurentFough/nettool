@@ -61,6 +61,8 @@ class TestValidation(object):
     def test_ip_validation(self):
         assert_true(nu.validate.ip('1.2.3.4'))
         assert_true(nu.validate.ip(u'1.2.3.4'))
+        assert_false(nu.validate.ip(u' '))
+        assert_false(nu.validate.ip(u''))
         assert_false(nu.validate.ip(u'256.2.3.4'))
         assert_false(nu.validate.ip('host'))
         assert_false(nu.validate.ip(''))

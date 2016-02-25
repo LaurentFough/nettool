@@ -8,6 +8,25 @@ from nose.tools import assert_raises, assert_equals, assert_not_equals
 
 class TestHostname(object):
 
+    def test_initilization(self):
+        assert_equals(Hostname(name='test', ip=None).ip, None)
+        assert_equals(Hostname(name='test', ip='').ip, None)
+        assert_equals(Hostname(name='test', ip=' ').ip, None)
+        hostname = 'host1'
+        host = Hostname(hostname)
+        assert_equals(host.domain, '')
+        assert_equals(host.fqdn, hostname)
+        hostname = 'host1.example'
+        host = Hostname(hostname)
+        assert_equals(host.name, 'host1')
+        assert_equals(host.domain, 'example')
+        assert_equals(host.fqdn, hostname)
+        hostname = 'host1.example.com'
+        host = Hostname(hostname)
+        assert_equals(host.name, 'host1')
+        assert_equals(host.domain, 'example.com')
+        assert_equals(host.fqdn, hostname)
+
     def test_initilization_ip(self):
         h = Hostname('test')
         h.ip = '2.3.4.5'
@@ -49,22 +68,6 @@ class TestHostname(object):
         assert_raises(ValueError, Validate.host, invalid_encoding)
         invalid_character = 'h+st'
         assert_raises(ValueError, Validate.host, invalid_character)
-
-    def test_initilization(self):
-        hostname = 'host1'
-        host = Hostname(hostname)
-        assert_equals(host.domain, '')
-        assert_equals(host.fqdn, hostname)
-        hostname = 'host1.example'
-        host = Hostname(hostname)
-        assert_equals(host.name, 'host1')
-        assert_equals(host.domain, 'example')
-        assert_equals(host.fqdn, hostname)
-        hostname = 'host1.example.com'
-        host = Hostname(hostname)
-        assert_equals(host.name, 'host1')
-        assert_equals(host.domain, 'example.com')
-        assert_equals(host.fqdn, hostname)
 
     def test_cleanup_host(self):
         hostname = 'host1.example.com.'
