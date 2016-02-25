@@ -53,9 +53,9 @@ class TestHost(object):
         host = Host(host_entry_1)
         host_entry_2 = Hostname('test1', '1.2.3.4')
         host.add(host_entry_2)
+        assert_equals(host[0].ip, host_entry_2.ip)
         assert_equals(len(host), 1)
         assert_equals(host[0].fqdn, host_entry_1.fqdn)
-        assert_equals(host[0].ip, host_entry_2.ip)
         host[0].ip = None
         host_entry_3 = Hostname('test1.example.com', '1.2.3.4')
         host.add(host_entry_3)

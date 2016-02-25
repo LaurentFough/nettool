@@ -1,27 +1,24 @@
 # -*- coding: utf-8 -*-
 
+# import ipaddress
 from ipv4address import IPv4Address
 
 from nettool.nutility import NUtility as nu
-from validate import Validate
 
 
 class Hostname(object):
     def __init__(self, name=None, ip=None):
-        try:
-            nu.validate.ip(name, raise_exception=True)
-        except ValueError:
-            pass
-        else:
-            if ip is not None:
-                raise ValueError('Two conflicting IPs specified: {} & {}'.format(name, ip))
-            ip = name
+        if ip is None and nu.validate.ip(name):
+            self.ip = name
             name = None
+        else:
+            self.ip = ip
         self._initialize_name(name)
-        self.ip = ip
 
     def _initialize_name(self, value):
         self.domain = ''
+        if nu.validate.ip(value):
+            raise ValueError('Invalid hostname \'{}\'. Hostname cannot be an IP address'.format(value))
         if isinstance(value, basestring):
             if '.' in value.strip('.'):
                 parts = value.split('.')
@@ -98,14 +95,17 @@ class Hostname(object):
 
     @property
     def ip(self):
-        return self._ip
+        address = self._ip
+        if isinstance(address, IPv4Address):
+            address = address.exploded
+        return address
 
     @ip.setter
     def ip(self, value):
         if value is None:
             value = None
         else:
-            Validate.ip(value)
+            nu.validate.ip(value, raise_exception=True)
             if not isinstance(value, IPv4Address):
                 value = IPv4Address(value)
         self._ip = value
@@ -113,7 +113,7 @@ class Hostname(object):
     def __str__(self):
         hostname = Hostname._build_fqdn(self.name, self.domain)
         if hostname is None:
-            hostname = self.ip.exploded
+            hostname = self.ip
         else:
             hostname = '{} {}'.format(hostname, self.ip)
         return '{}'.format(hostname)
@@ -243,10 +243,7 @@ class Host(HostnameList):
     def add(self, value, ip=None):
         """ Merges a value with existing host entry values """
         if isinstance(value, basestring):
-            if ip:
-                value = Hostname(value, ip=ip)
-            else:
-                value = Hostname(value)
+            value = Hostname(value, ip=ip)
 
         if not isinstance(value, Hostname):
             raise TypeError('Can only add Hostname types')
@@ -265,9 +262,10 @@ class Host(HostnameList):
                 break
 
         # If existing Hostname name matches but has no IP, add the IP to the existing Hostname
-        for entry in self._host_entries:
-            if value.name == entry.name and not entry.ip:
-                entry.ip = value.ip
+        if nu.validate.ip(value.ip):
+            for entry in self._host_entries:
+                if value.name == entry.name and not entry.ip:
+                    entry.ip = value.ip
 
         # If existing Hostname name matches but the ip is different, add the new entry to the list
         existing_hostname = False

@@ -65,7 +65,7 @@ class TestValidation(object):
         assert_false(nu.validate.ip('host'))
         assert_false(nu.validate.ip(''))
         assert_false(nu.validate.ip(1))
-        assert_raises(ValueError, nu.validate.ip, 1, True)
+        assert_raises(TypeError, nu.validate.ip, 1, True)
         assert_raises(ValueError, nu.validate.ip, '1.2.3.4.5', True)
 
     def test_network_validation(self):
