@@ -28,8 +28,9 @@ class TestHostname(object):
         assert_raises(ValueError, setattr, h, 'domain', invalid_domain)
 
     def test_str(self):
-        h = Hostname(name=None, ip='1.2.3.4')
-        assert_equals(h, '1.2.3.4')
+        assert_equals(str(Hostname(name=None, ip='1.2.3.4')), '1.2.3.4')
+        assert_equals(str(Hostname(name='hostname', ip='1.2.3.4')), 'hostname 1.2.3.4')
+        assert_equals(str(Hostname(name='hostname.example.com', ip='1.2.3.4')), 'hostname.example.com 1.2.3.4')
 
     def test_validation_ip(self):
         h = Hostname('test', '1.2.3.4')
@@ -106,11 +107,15 @@ class TestHostname(object):
         host = Hostname('test', ip=ip)
         assert_equals(host, ip)
 
-    def test_eqality_hosts(self):
+    def test_eqality_hostnames(self):
         # Total match
         host1 = Hostname('host1', '1.1.1.1')
         host2 = Hostname('host1', '1.1.1.1')
         assert_equals(host1, host2)
+
+        # Non-fqdn hostname to fqdn hostname match
+        assert_equals(Hostname('host.example.com', '1.1.1.1'), Hostname('host', '1.1.1.1'))
+        assert_equals(Hostname('host.example.com', '1.1.1.1'), Hostname('host', '1.1.1.2'))
 
         # Hostname match
         host3 = Hostname('host1', '2.2.2.2')
