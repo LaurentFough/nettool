@@ -114,6 +114,8 @@ class Hostname(object):
         hostname = Hostname._build_fqdn(self.name, self.domain)
         if hostname is None:
             hostname = self.ip.exploded
+        else:
+            hostname = '{} {}'.format(hostname, self.ip)
         return '{}'.format(hostname)
 
     def __repr__(self):
@@ -234,7 +236,6 @@ class Host(HostnameList):
     def __init__(self, value, ip=None):
         super(Host, self).__init__()
         self._add(value, ip)
-        self.display_name = value
 
     def __eq__(self, value):
         return self.__contains__(value)
@@ -287,38 +288,17 @@ class Host(HostnameList):
             self._append(value)
 
     @property
-    def display_name(self):
+    def display_hostname(self):
         display = 'unknown'
-        if hasattr(self, '_display_name'):
-            existing = self.get(self._display_name)
-            if existing:
-                display = existing
-            elif len(self):
-                display = self._host_entries[0].fqdn
-                self._display_name = display
-        else:
-            if len(self._host_entries):
-                self._display_name = self._host_entries[0].fqdn
-                display = self.get(self._display_name)
+        for hostname in self._host_entries:
+            if display == 'unknown':
+                display = hostname.fqdn
+            elif len(hostname.fqdn) > display:
+                display = hostname.fqdn
         return display
 
-    @display_name.setter
-    def display_name(self, value):
-        if isinstance(value, Hostname):
-            value = value.fqdn
-        if '.' in value:
-            value = Hostname._clean_fqdn(value)
-            Validate.fqdn(value)
-        else:
-            value = Hostname._clean_name(value)
-            Validate.host(value)
-        if value not in self._host_entries:
-            raise ValueError('Invalid display name \'{}\'. Value not found in the hostname list'.format(value))
-        else:
-            self._display_name = value
-
     def __str__(self):
-        return 'Host {}'.format(self.display_name)
+        return 'Host {}'.format(self.display_hostname)
 
     def __repr__(self):
-        return '<Host {}>'.format(self.display_name)
+        return '<Host {}>'.format(self.display_hostname)

@@ -10,19 +10,17 @@ class TestHost(object):
         host = Host('test1')
         assert_in('test1', host)
 
-    def test_display_name(self):
+    def test_display_hostname(self):
         host = Host('test1')
-        assert_equals(host.display_name, 'test1')
+        assert_equals(host.display_hostname, 'test1')
         host._add('test2')
-        assert_equals(host.display_name, 'test1')
-        host.display_name = 'test2'
-        assert_equals(host.display_name, 'test2')
+        assert_equals(host.display_hostname, 'test1')
 
-    def test_display_name_update(self):
+    def test_display_hostname_update(self):
         host = Host('test1')
-        assert_equals(host.display_name, 'test1')
+        assert_equals(host.display_hostname, 'test1')
         host.add('test1.example.com')
-        assert_equals(host.display_name, 'test1.example.com')
+        assert_equals(host.display_hostname, 'test1.example.com')
 
     def test_add(self):
         host = Host('test1')
@@ -114,6 +112,7 @@ class TestHost(object):
     def test_str(self):
         host = Host('test1')
         assert_equals(host.__str__(), 'Host test1')
+        host = Host('test1')
 
     def test_repr(self):
         host = Host('test1')
