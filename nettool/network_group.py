@@ -3,7 +3,7 @@
 from ipaddress import IPv4Interface, IPv4Network, AddressValueError
 from nettool._tools import raise_type_exception
 from nettool.address_group import AddressGroup
-from nettool.nutility import NUtility as nu
+from nettool.nettest import NetTest as nu
 
 
 class NetworkGroup(AddressGroup):

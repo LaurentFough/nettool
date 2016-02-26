@@ -3,7 +3,7 @@
 import ipaddress
 
 from nose.tools import assert_true, assert_false, assert_raises
-from nettool.nutility import NUtility as nu
+from nettool.nettest import NetTest as nu
 
 
 class TestValidation(object):

@@ -3,7 +3,7 @@
 from nettool.validate import Validate
 from nettool.host import Hostname
 
-from nose.tools import assert_raises, assert_equals, assert_not_equals
+from nose.tools import assert_raises, assert_equals, assert_not_equals, assert_true
 
 
 class TestHostname(object):
@@ -26,11 +26,9 @@ class TestHostname(object):
         assert_equals(host.name, 'host1')
         assert_equals(host.domain, 'example.com')
         assert_equals(host.fqdn, hostname)
+        assert_equals(Hostname('test', '2.3.4.5').ip, '2.3.4.5')
 
-    def test_initilization_ip(self):
-        h = Hostname('test')
-        h.ip = '2.3.4.5'
-        assert_equals(h.ip, '2.3.4.5')
+    def test_initilization_invalid(self):
         assert_raises(ValueError, Hostname, '1.2.3.4', '2.3.4.5')
 
     def test_validation_host_length(self):
@@ -110,7 +108,7 @@ class TestHostname(object):
         host = Hostname('test', ip=ip)
         assert_equals(host, ip)
 
-    def test_eqality_hostnames(self):
+    def test_equality_hostnames(self):
         # Total match
         host1 = Hostname('host1', '1.1.1.1')
         host2 = Hostname('host1', '1.1.1.1')

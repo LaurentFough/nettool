@@ -3,7 +3,7 @@
 # import ipaddress
 from ipv4address import IPv4Address
 
-from nettool.nutility import NUtility as nu
+from nettool.nettest import NetTest as nu
 
 
 class Hostname(object):

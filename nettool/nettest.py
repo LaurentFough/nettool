@@ -3,11 +3,10 @@
 import re
 import ipaddress
 
-# from ipv4address import IPv4Address
 from unidecode import unidecode
 
 
-class NUtility(object):
+class NetTest(object):
     wildcards = [ipaddress.IPv4Interface(
         unicode('0.0.0.0/{}'.format(x))).network.hostmask.exploded for x in range(0, 33)]
     netmasks = [ipaddress.IPv4Interface(
@@ -30,24 +29,24 @@ class NUtility(object):
                 raise ValueError(message.format(port, 1, 65535))
             return valid
 
-        @staticmethod
-        def tcp_port(port, raise_exception=False):
-            return NUtility.validate._port(port, raise_exception=raise_exception)
+        @classmethod
+        def tcp_port(cls, port, raise_exception=False):
+            return cls._port(port, raise_exception=raise_exception)
 
-        @staticmethod
-        def udp_port(port, raise_exception=False):
-            return NUtility.validate._port(port, raise_exception=raise_exception)
+        @classmethod
+        def udp_port(cls, port, raise_exception=False):
+            return cls._port(port, raise_exception=raise_exception)
 
         @staticmethod
         def netmask(netmask, raise_exception=False):
-            valid = netmask in NUtility.netmasks
+            valid = netmask in NetTest.netmasks
             if not valid and raise_exception:
                 raise ValueError('Invalid netmask {}'.format(netmask))
             return valid
 
         @staticmethod
         def wildcard(wildcard, raise_exception=False):
-            valid = wildcard in NUtility.wildcards
+            valid = wildcard in NetTest.wildcards
             if not valid and raise_exception:
                 raise ValueError('Invalid wildcard {}'.format(wildcard))
             return valid
@@ -125,7 +124,7 @@ class NUtility(object):
                 if raise_exception:
                     raise ValueError('Invalid type \'{}\''.format(type(value)))
                 return False
-            if not NUtility.validate._host_base_checks(value, raise_exception=raise_exception):
+            if not NetTest.validate._host_base_checks(value, raise_exception=raise_exception):
                 return False
             if len(value) < 1:
                 if raise_exception:
@@ -154,7 +153,7 @@ class NUtility(object):
                     raise ValueError(message)
                 return False
             for domain_level in value.split('.'):
-                if not NUtility.validate.host(domain_level):
+                if not NetTest.validate.host(domain_level):
                     if raise_exception:
                         message = "Inalid domain level name '{}' in hostname '{}'."
                         message = message.format(domain_level, value)
@@ -181,16 +180,16 @@ class NUtility(object):
                 value = unidecode(value)
                 return value
 
-            @staticmethod
-            def host(value):
-                value = NUtility.coerce.string._base_host_coerce(value)
-                NUtility.validate.host(value, raise_exception=True)
+            @classmethod
+            def host(cls, value):
+                value = cls.coerce.string._base_host_coerce(value)
+                cls.validate.host(value, raise_exception=True)
                 return value
 
-            @staticmethod
-            def hostname(value):
-                value = NUtility.coerce.string._base_host_coerce(value)
-                NUtility.validate.hostname(value, raise_exception=True)
+            @classmethod
+            def hostname(cls, value):
+                value = cls._base_host_coerce(value)
+                NetTest.validate.hostname(value, raise_exception=True)
                 return value
 
     class convert(object):
@@ -198,38 +197,38 @@ class NUtility(object):
         class prefix(object):
             @staticmethod
             def netmask(prefix):
-                if not NUtility.validate.prefix(prefix):
+                if not NetTest.validate.prefix(prefix):
                     raise ValueError(u'Invalid prefix length \'{}\''.format(prefix))
-                return NUtility.netmasks[prefix]
+                return NetTest.netmasks[prefix]
 
             @staticmethod
             def wildcard(prefix):
-                if not NUtility.validate.prefix(prefix):
+                if not NetTest.validate.prefix(prefix):
                     raise ValueError(u'Invalid prefix length \'{}\''.format(prefix))
-                return NUtility.wildcards[prefix]
+                return NetTest.wildcards[prefix]
 
         class netmask(object):
             @staticmethod
             def wildcard(netmask):
-                if not NUtility.validate.netmask(netmask):
+                if not NetTest.validate.netmask(netmask):
                     raise ValueError(u'Invalid netmask \'{}\''.format(netmask))
-                return NUtility.wildcards[NUtility.netmasks.index(netmask)]
+                return NetTest.wildcards[NetTest.netmasks.index(netmask)]
 
             @staticmethod
             def prefix(netmask):
-                if not NUtility.validate.netmask(netmask):
+                if not NetTest.validate.netmask(netmask):
                     raise ValueError(u'Invalid netmask \'{}\''.format(netmask))
-                return NUtility.netmasks.index(netmask)
+                return NetTest.netmasks.index(netmask)
 
         class wildcard(object):
             @staticmethod
             def netmask(wildcard):
-                if not NUtility.validate.wildcard(wildcard):
+                if not NetTest.validate.wildcard(wildcard):
                     raise ValueError(u'Invalid wildcard \'{}\''.format(wildcard))
-                return NUtility.netmasks[NUtility.wildcards.index(wildcard)]
+                return NetTest.netmasks[NetTest.wildcards.index(wildcard)]
 
             @staticmethod
             def prefix(wildcard):
-                if not NUtility.validate.wildcard(wildcard):
+                if not NetTest.validate.wildcard(wildcard):
                     raise ValueError(u'Invalid wildcard \'{}\''.format(wildcard))
-                return NUtility.wildcards.index(wildcard)
+                return NetTest.wildcards.index(wildcard)

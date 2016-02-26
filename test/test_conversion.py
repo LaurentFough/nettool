@@ -4,7 +4,7 @@ import ipaddress
 
 from nose.tools import assert_equals, assert_raises
 
-from nettool.nutility import NUtility as nu
+from nettool.nettest import NetTest as nu
 
 
 class TestConversion(object):
