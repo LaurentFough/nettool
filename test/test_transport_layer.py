@@ -6,6 +6,8 @@ from nose.tools import assert_is_instance, assert_in, assert_not_in
 from nettool.transport_layer import TransportLayer
 from nettool.transport_group import TransportGroup
 from nettool.transport_address import TransportAddress
+from nettool.tcp_address import TcpAddress
+from nettool.udp_address import UdpAddress
 
 
 class TestTransportLayer(object):
@@ -47,11 +49,34 @@ class TestTransportLayer(object):
             assert_in(5, side_attr)
             assert_not_in(6, side_attr)
             assert_not_in(1, side_attr)
+            setattr(layer, side, TransportGroup())
+            assert_is_instance(side_attr, TransportGroup)
 
     def test_setter_invalid(self):
         layer = TransportLayer()
         assert_raises(ValueError, setattr, layer, 'source', 'invalid')
         assert_raises(ValueError, setattr, layer, 'destination', 'invalid')
+
+    def test_from_string(self):
+        layer = TransportLayer.from_string('tcp 1 2 3 4')
+        assert_in(TcpAddress.from_string('1 2'), layer.source)
+        assert_in(TcpAddress.from_string('3 4'), layer.destination)
+        layer = TransportLayer.from_string('udp 1-2 3-4')
+        assert_in(UdpAddress.from_string('1 2'), layer.source)
+        assert_in(UdpAddress.from_string('3 4'), layer.destination)
+        layer = TransportLayer.from_string('tcp 1-2 3 4')
+        assert_in(TcpAddress.from_string('1 2'), layer.source)
+        layer = TransportLayer.from_string('tcp 1 2')
+        assert_in(TcpAddress.from_string('1'), layer.source)
+        assert_in(TcpAddress.from_string('2'), layer.destination)
+
+    def test_from_string_invalid(self):
+        from_string = TransportLayer.from_string
+        for value in self.invalid_types:
+            assert_raises(TypeError, from_string, value)
+        for value in self.invalid_values:
+            assert_raises(ValueError, from_string, value)
+        assert_raises(ValueError, from_string, 'tcp 1 2 3')
 
     def test_repr(self):
         layer = TransportLayer()
