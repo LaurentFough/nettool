@@ -13,7 +13,7 @@ class NetworkEnvelope(object):
     @classmethod
     def from_string(cls, value):
         if isinstance(value, basestring):
-            value = NetworkEnvelope._clean_build_string(value)
+            value = cls._clean_build_string(value)
             values = value.split()
             if len(values) == 2:
                 envelope = cls()

@@ -11,10 +11,10 @@ class NetworkGroup(AddressGroup):
     _default_address = IPv4Network(u'0.0.0.0/0')
     _address_type = (IPv4Network, )
 
-    @staticmethod
-    def _clean_address(network):
+    @classmethod
+    def _clean_address(cls, network):
         if network is None:
-            network = NetworkGroup._default_address
+            network = cls._default_address
         else:
             nu.validate.network(network, raise_exception=True)
             network = IPv4Interface(unicode(network)).network
@@ -37,9 +37,9 @@ class NetworkGroup(AddressGroup):
     def _is_member(key, member):
         return key.subnet_of(member)
 
-    @staticmethod
-    def from_string(value):
-        address = NetworkGroup.address_from_string(value)
-        group = NetworkGroup()
+    @classmethod
+    def from_string(cls, value):
+        address = cls.address_from_string(value)
+        group = cls()
         group.add(address)
         return group
