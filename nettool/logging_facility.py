@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from nettool._tools import raise_type_exception
 
 

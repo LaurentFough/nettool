@@ -115,17 +115,17 @@ class TestAce(object):
         for value in invalid_types:
             assert_raises(TypeError, self.ace.__ne__, value)
 
-    def tst_contains(self):
+    def test_contains(self):
         ace = Ace()
         assert_in(ace, Ace())
         ace = Ace(network=NetworkLayer.from_string('1.2.3.0/24 2.3.4.0/24'))
         assert_in(ace, Ace())
         ace = Ace(transport=TransportLayer.from_string('tcp 1024 65535 22 22'))
         assert_in(ace, Ace())
-        ace = Ace(logging='warning')
-        assert_in(ace, Ace())
+        ace = Ace(logging=2)
+        assert_in(ace, Ace(logging=3))
 
-    def tst_not_contains(self):
+    def test_not_contains(self):
         ace = Ace(network=NetworkLayer.from_string('1.2.3.0/24 2.3.4.0/24'))
         assert_not_in(Ace(), ace)
         ace = Ace(transport=TransportLayer.from_string('tcp 1024 65535 22 22'))
