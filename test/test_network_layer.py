@@ -97,3 +97,9 @@ class TestNetworkLayer(object):
             assert_raises(TypeError, from_string, value)
         for value in self.invalid_values:
             assert_raises(ValueError, from_string, value)
+
+    def test_group_getter(self):
+        nl = NetworkLayer()
+        new_name = 'new name'
+        nl.source.name = new_name
+        assert_equals(nl.source.name, new_name)

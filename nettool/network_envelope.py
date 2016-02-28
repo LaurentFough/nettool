@@ -36,36 +36,32 @@ class NetworkEnvelope(object):
         return value.strip().replace('  ', ' ')
 
     @classmethod
-    def _clean_side(cls, value):
+    def _clean_group(cls, value):
         if value is not None:
             if isinstance(value, basestring):
                 value = cls._group_from_string(value)
             if not isinstance(value, cls._group_type):
                 raise_type_exception(value, (cls._group_type,), 'set')
+        else:
+            value = cls._group_type()
         return value
 
     @property
     def source(self):
-        value = self._source
-        if value is None:
-            value = self._group_type()
-        return value
+        return self._source
 
     @source.setter
     def source(self, value):
-        value = self._clean_side(value)
+        value = self._clean_group(value)
         self._source = value
 
     @property
     def destination(self):
-        value = self._destination
-        if value is None:
-            value = self._group_type()
-        return value
+        return self._destination
 
     @destination.setter
     def destination(self, value):
-        value = self._clean_side(value)
+        value = self._clean_group(value)
         self._destination = value
 
     def __repr__(self):
