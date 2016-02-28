@@ -1,59 +1,102 @@
 # -*- coding: utf-8 -*-
 
 from nettool.network_layer import NetworkLayer
-# from nettool.protocol_layer import ProtocolLayer
+from nettool.transport_layer import TransportLayer
+from nettool.logging_facility import LoggingFacility
+from nettool._tools import raise_type_exception
 
 
 class Ace(object):
 
-    def __init__(self, acl_type=None, line_number=None, permit=None,
-                 protocol=None, source=None, source_port_low=None,
-                 source_port_high=None, source_established=None, destination=None,
-                 destination_port_low=None, destination_port_high=None,
-                 destination_established=None, logging=None, hits=None):
-        # self._protocol_layer = ProtocolLayer(protocol)
-        self._ip_layer = NetworkLayer(source, destination)
-
-        self.acl_type = acl_type
+    def __init__(self, line_number=None, permit=None,
+                 network=None, transport=None,
+                 logging=None, hits=None):
         self.line_number = line_number
-        self.permit = permit
-        if permit is None:
-            self.permit = True
-        self.source = source
-        self.destination = destination
-        for network in (source, destination):
-            if network:
-                network = unicode(network)
+        self.permit = True
+        if permit is not None or permit is False:
+            self.permit = False
+        self.hits = hits or 0
 
-        # self.source_port_low = source_port_low or cls.min_port
-        # self.source_port_high = source_port_high or cls.max_port
-        # self.source_established = source_established or cls.default_established
-        # self.destination_port_low = destination_port_low or cls.min_port
-        # self.destination_port_high = destination_port_high or cls.max_port
-        # self.destination_established = destination_established or cls.default_established
+        self.network = network
+        self.transport = transport
         self.logging = logging
-        self.hits = hits
 
     @property
-    def protocol(self):
-        return self._protocol_layer.name
+    def logging(self):
+        return self._logging
 
-    @protocol.setter
-    def protocol(self, value):
-        self._protocol_layer.name = value
-
-    @property
-    def source(self):
-        return self._ip_layer.source
-
-    @source.setter
-    def source(self, value):
-        self._ip_layer.source = value
+    @logging.setter
+    def logging(self, value):
+        self._logging = self._type_initialization(value, LoggingFacility)
 
     @property
-    def destination(self):
-        return self._ip_layer.destination
+    def network(self):
+        return self._network
 
-    @destination.setter
-    def destination(self, value):
-        self._ip_layer.destination = value
+    @network.setter
+    def network(self, value):
+        self._network = self._type_initialization(value, NetworkLayer)
+
+    @property
+    def transport(self):
+        return self._transport
+
+    @transport.setter
+    def transport(self, value):
+        self._transport = self._type_initialization(value, TransportLayer)
+
+    @staticmethod
+    def _type_initialization(value, cls):
+        if value is None:
+            value = cls()
+        elif not isinstance(value, cls):
+            value = cls.from_string(value)
+        if not isinstance(value, cls):
+            raise_type_exception(value, (cls, ), 'build from')
+        return value
+
+    def __eq__(self, key):
+        if not isinstance(key, self.__class__):
+            raise_type_exception(key, (self.__class__, ), 'test equality of')
+        if key.permit == self.permit:
+            if key.logging == self.logging:
+                if key.transport == self.transport:
+                    return key.network == self.network
+        return False
+
+    def __ne__(self, key):
+        if not isinstance(key, self.__class__):
+            raise_type_exception(key, (self.__class__, ), 'test equality of')
+        return not self.__eq__(key)
+
+    def __contains__(self, key):
+        if not isinstance(key, self.__class__):
+            raise_type_exception(key, (self.__class__, ), 'test membership of')
+        if key.permit == self.permit:
+            if key.logging in self.logging:
+                if key.transport in self.transport:
+                    return key.network in self.network
+        return False
+
+    def __repr__(self):
+        cls_name = self.__class__.__name__.upper()
+        line = ''
+        if self.line_number:
+            line = 'line {} '.format(self.line_number)
+        return '<{} {}{}>'.format(cls_name, line, self.__str__())
+
+    def __str__(self):
+        output = list()
+        if self.line_number:
+            output.append('#{}'.format(self.line_number))
+        permit = 'permit'
+        if not self.permit:
+            permit = 'deny'
+        output.append(permit)
+        output.append(self.network.source.name)
+        output.append(self.transport.source.name)
+        output.append(self.network.destination.name)
+        output.append(self.transport.destination.name)
+        if self.logging.level is not None:
+            output.append(self.logging.name)
+        return ' '.join(output)
