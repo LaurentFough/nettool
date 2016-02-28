@@ -8,10 +8,9 @@ from nettool._tools import raise_type_exception
 
 class Ace(object):
 
-    def __init__(self, line_number=None, permit=None,
+    def __init__(self, permit=None,
                  network=None, transport=None,
                  logging=None, hits=None):
-        self.line_number = line_number
         self.permit = True
         if permit is not None or permit is False:
             self.permit = False
@@ -80,15 +79,10 @@ class Ace(object):
 
     def __repr__(self):
         cls_name = self.__class__.__name__.upper()
-        line = ''
-        if self.line_number:
-            line = 'line {} '.format(self.line_number)
-        return '<{} {}{}>'.format(cls_name, line, self.__str__())
+        return '<{} {}>'.format(cls_name, self.__str__())
 
     def __str__(self):
         output = list()
-        if self.line_number:
-            output.append('#{}'.format(self.line_number))
         permit = 'permit'
         if not self.permit:
             permit = 'deny'
