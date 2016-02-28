@@ -77,4 +77,6 @@ class LoggingFacility(object):
             raise_type_exception(key, (LoggingFacility), 'test memebership of')
         if not isinstance(key, LoggingFacility):
             value = self.from_string(value)
+        if key.level is None and self.level is not None:
+            return False
         return value.level <= self.level

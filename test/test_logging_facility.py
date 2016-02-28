@@ -43,11 +43,13 @@ class TestLoggingFacility(object):
         assert_in(log01, log02)
         log01 = LoggingFacility(7)
         assert_in(log01, log02)
+        assert_in(LoggingFacility(), LoggingFacility())
 
     def test_not_contains(self):
         log01 = LoggingFacility(2)
         log02 = LoggingFacility(7)
         assert_not_in(log02, log01)
+        assert_not_in(LoggingFacility(), log01)
 
     def test_contains_invalid(self):
         for value in self.invalid_values:
@@ -76,6 +78,7 @@ class TestLoggingFacility(object):
             assert_equals(from_string(index).level, index)
             assert_equals(from_string(str(index)).level, index)
             assert_equals(from_string(name).level, index)
+        assert_equals(LoggingFacility.from_string('WARNING  ').level, 4)
 
     def test_from_string_invalid(self):
         from_string = LoggingFacility.from_string
