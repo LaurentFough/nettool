@@ -13,6 +13,9 @@ class TestTcpAddress(object):
         self.address.low = 1
         self.address.high = 2
 
+    def test_initialization(self):
+        assert_equals(self.address.type, 'TCP')
+
     def test_repr(self):
         assert_equals(self.address.__repr__(), "<TcpAddress 1-2>")
 
