@@ -28,7 +28,7 @@ pip uninstall nettool -y
 # Example Usage
 
 ```python
-from nettool.nutility import NetTest as ntest
+from nettool.nettest import NetTest as ntest
 
 ntest.convert.netmask.wildcard('255.255.0.0')  # '0.0.255.255'
 ntest.convert.wildcard.netmask('0.0.255.255')  # '255.255.0.0'
