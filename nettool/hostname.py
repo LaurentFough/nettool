@@ -116,11 +116,12 @@ class Hostname(object):
 
     def __str__(self):
         hostname = Hostname._build_fqdn(self.name, self.domain)
-        if hostname is None:
-            hostname = self.ip
-        else:
-            hostname = '{} {}'.format(hostname, self.ip)
-        return '{}'.format(hostname)
+        ip = self.ip or ''
+        hostname = hostname or ip
+        if hostname == ip:
+            ip = ''
+        hostname = '{} {}'.format(hostname, ip).strip()
+        return hostname
 
     def __repr__(self):
         hostname = Hostname._build_fqdn(self.name, self.domain)

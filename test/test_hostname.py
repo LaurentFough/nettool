@@ -3,7 +3,7 @@
 from nettool.validate import Validate
 from nettool.host import Hostname
 
-from nose.tools import assert_raises, assert_equals, assert_not_equals, assert_true
+from nose.tools import assert_raises, assert_equals, assert_not_equals
 
 
 class TestHostname(object):
@@ -48,6 +48,7 @@ class TestHostname(object):
         assert_equals(str(Hostname(name=None, ip='1.2.3.4')), '1.2.3.4')
         assert_equals(str(Hostname(name='hostname', ip='1.2.3.4')), 'hostname 1.2.3.4')
         assert_equals(str(Hostname(name='hostname.example.com', ip='1.2.3.4')), 'hostname.example.com 1.2.3.4')
+        assert_equals(str(Hostname(name='hostname.example.com')), 'hostname.example.com')
 
     def test_validation_ip(self):
         h = Hostname('test', '1.2.3.4')
