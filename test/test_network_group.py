@@ -38,7 +38,6 @@ class TestNetworkGroup(object):
 
     def test_address_is_default(self):
         group = NetworkGroup()
-        print group.addresses[0].__class__
         assert_true(group.address_is_default)
         group.add(self.address01)
         assert_false(group.address_is_default)

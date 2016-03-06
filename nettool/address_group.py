@@ -80,7 +80,6 @@ class AddressGroup(object):
         return result
 
     def __repr__(self):
-        # print '__repr__ len', len(self)
         if len(self) is 0:
             entries = str(self._default_address)
         elif len(self) is 1:
