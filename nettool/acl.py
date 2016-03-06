@@ -75,29 +75,31 @@ class Acl(object):
         self._current_line -= 1
 
     def permits(self, key):
-        return self._test_permission(key, permit=True)
+        return self._test_permission(key)
 
     def allows(self, key):
         return self.permits(key)
 
     def denies(self, key):
-        return self._test_permission(key, permit=False)
+        return not self.permits(key)
 
-    def _test_permission(self, key, permit):
-        if not isinstance(key, Ace):
-            raise_type_exception(key, (Ace, ), 'test permission of')
+    def _test_permission(self, key):
+        if not isinstance(key, (Ace, Acl)):
+            raise_type_exception(key, (Acl, Ace, ), 'test permission of')
         if isinstance(key, Ace):
             key_aces = (key, )
         else:
             key_aces = key._aces
 
+        if len(self._aces) is 0:
+            return self.default_permit
         for key_ace in key_aces:
             for self_ace in self._aces:
-                if key_ace in self_ace and self_ace.permit is permit:
+                if key_ace in self_ace and self_ace.permit:
                     break
             else:
-                return self.default_permit and permit
-        return permit
+                return self.default_permit
+        return True
 
     def __getitem__(self, index):
         return self._aces[index]
