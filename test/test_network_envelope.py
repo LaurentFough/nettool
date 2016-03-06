@@ -2,7 +2,7 @@
 
 from nose.tools import assert_equals
 
-from nettool.network_envelope import NetworkEnvelope
+from nettool.layer.network_envelope import NetworkEnvelope
 
 
 class TestNetworkEnvelope(object):

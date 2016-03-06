@@ -4,9 +4,9 @@ from nose.tools import assert_equals, assert_not_equals
 from nose.tools import assert_raises, assert_in, assert_not_in
 
 from nettool.ace import Ace
-from nettool.network_layer import NetworkLayer
-from nettool.transport_layer import TransportLayer
-from nettool.transport_layer_builder import TransportLayerBuilder
+from nettool.layer.network_layer import NetworkLayer
+from nettool.layer.transport_layer import TransportLayer
+from nettool.layer.transport_layer_builder import TransportLayerBuilder
 from nettool.logging_facility import LoggingFacility
 
 

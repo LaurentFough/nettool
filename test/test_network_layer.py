@@ -3,7 +3,7 @@
 from nose.tools import assert_equals, assert_not_equals, assert_raises
 from nose.tools import assert_true, assert_false
 
-from nettool.network_layer import NetworkLayer
+from nettool.layer.network_layer import NetworkLayer
 
 
 class TestNetworkLayer(object):

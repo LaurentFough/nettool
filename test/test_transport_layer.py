@@ -3,8 +3,8 @@
 from nose.tools import assert_equals, assert_raises, assert_not_equals
 from nose.tools import assert_is_instance, assert_in, assert_not_in
 
-from nettool.transport_layer import TransportLayer
-from nettool.transport_layer_builder import TransportLayerBuilder
+from nettool.layer.transport_layer import TransportLayer
+from nettool.layer.transport_layer_builder import TransportLayerBuilder
 from nettool.address.transport_group import TransportGroup
 from nettool.address.transport_address import TransportAddress
 from nettool.address.tcp_address import TcpAddress

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from nettool.network_layer import NetworkLayer
-from nettool.transport_layer_builder import TransportLayerBuilder
+from nettool.layer.network_layer import NetworkLayer
+from nettool.layer.transport_layer_builder import TransportLayerBuilder
 from nettool.logging_facility import LoggingFacility
 from nettool.utilities import raise_type_exception
 

@@ -3,7 +3,7 @@
 from nettool.address.transport_address_builder import TransportAddressBuilder
 from nettool.address.transport_group import TransportGroup
 from nettool.address.transport_address import TransportAddress
-from nettool.transport_layer import TransportLayer
+from nettool.layer.transport_layer import TransportLayer
 from nettool.utilities import raise_type_exception
 
 
