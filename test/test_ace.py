@@ -170,10 +170,7 @@ class TestAce(object):
         expected = 'permit tcp 1.2.3.4/32 1-21 5.6.7.8/32 22'
         assert_equals(ace.__str__(), expected)
 
-    def tst_str_unnamed_groups_destination_transport(self):
+    def test_str_unnamed_groups_destination_transport(self):
         ace = Ace(network='1.2.3.4 5.6.7.8', transport=22)
-        expected = 'permit 1.2.3.4/32 5.6.7.8/32 22'
-        assert_equals(ace.__str__(), expected)
-        ace.transport = 'tcp 1-65535 22-22'
-        expected = 'permit 1.2.3.4/32 5.6.7.8/32 22'
+        expected = 'permit tcp/udp 1.2.3.4/32 5.6.7.8/32 22'
         assert_equals(ace.__str__(), expected)
