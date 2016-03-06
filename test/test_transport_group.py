@@ -37,10 +37,26 @@ class TestTransportGroup(object):
         group = TransportGroup()
         assert_equals(group.addresses, [TransportAddress()])
 
+    def test_addresses_getitem(self):
+        group = TransportGroup()
+        assert_equals(group.addresses[0], TransportAddress())
+
     def test_name_setter_invalid(self):
         group = TransportGroup()
         for value in self.invalid_name_types:
             assert_raises(TypeError, setattr, group, 'name', value)
+
+    def test_address_is_default(self):
+        group = TransportGroup()
+        assert_true(group.address_is_default)
+        group.add('1 3')
+        assert_false(group.address_is_default)
+        group.add('4 5')
+        assert_false(group.address_is_default)
+        group.remove('1 3')
+        assert_false(group.address_is_default)
+        group.remove('4 5')
+        assert_true(group.address_is_default)
 
     def test_add(self):
         group = TransportGroup()
@@ -66,7 +82,7 @@ class TestTransportGroup(object):
 
     def test_address_from_string_invalid(self):
         group = TransportGroup()
-        assert_raises(TypeError, group.address_from_string, True)
+        assert_raises(TypeError, group.address_builder, True)
 
     def test_has(self):
         group = TransportGroup()
@@ -97,14 +113,14 @@ class TestTransportGroup(object):
     def test_repr(self):
         layer = TransportGroup()
         layer.add('1-2')
-        assert_equals(layer.__repr__(), "<TransportGroup ['Port 1-2']>")
+        assert_equals(layer.__repr__(), "<TransportGroup TCP/UDP 1-2>")
         layer.add('3-4')
-        assert_equals(layer.__repr__(), "<TransportGroup ['Port 1-2', 'Port 3-4']>")
+        assert_equals(layer.__repr__(), "<TransportGroup ['TCP/UDP 1-2', 'TCP/UDP 3-4']>")
         layer.add('5-6')
-        text = "<TransportGroup ['Port 1-2', 'Port 3-4', 'Port 5-6']>"
+        text = "<TransportGroup ['TCP/UDP 1-2', 'TCP/UDP 3-4', 'TCP/UDP 5-6']>"
         assert_equals(layer.__repr__(), text)
         layer.add('7-8')
-        text = "<TransportGroup ['Port 1-2', 'Port 3-4', 'Port 5-6', ...]>"
+        text = "<TransportGroup ['TCP/UDP 1-2', 'TCP/UDP 3-4', 'TCP/UDP 5-6', ...]>"
         assert_equals(layer.__repr__(), text)
 
     def test_equality(self):

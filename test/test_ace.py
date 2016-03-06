@@ -6,6 +6,7 @@ from nose.tools import assert_raises, assert_in, assert_not_in
 from nettool.ace import Ace
 from nettool.network_layer import NetworkLayer
 from nettool.transport_layer import TransportLayer
+from nettool.transport_layer_builder import TransportLayerBuilder
 from nettool.logging_facility import LoggingFacility
 
 
@@ -18,7 +19,7 @@ class TestAce(object):
 
     def test_initialization_default(self):
         assert_equals(self.ace.network, NetworkLayer())
-        assert_equals(self.ace.transport, TransportLayer())
+        assert_equals(self.ace.transport, None)
         assert_equals(self.ace.logging, LoggingFacility())
 
     def test_network_getter(self):
@@ -44,17 +45,19 @@ class TestAce(object):
             assert_raises(ValueError, setattr, self.ace, 'network', value)
 
     def test_transport_getter(self):
+        assert_equals(self.ace.transport, None)
+        self.ace.transport = TransportLayer()
         assert_equals(self.ace.transport, self.transport_layer)
 
     def test_transport_setter(self):
         self.ace.transport = None
-        assert_equals(self.ace.transport, TransportLayer())
-        nl = TransportLayer.from_string('tcp 1 2 3 4')
-        self.ace.transport = TransportLayer.from_string('tcp 1 2 3 4')
+        assert_equals(self.ace.transport, None)
+        nl = TransportLayerBuilder.build('tcp 1 2 3 4')
+        self.ace.transport = TransportLayerBuilder.build('tcp 1 2 3 4')
         assert_in(nl, self.ace.transport)
 
     def test_transport_setter_invalid(self):
-        invalid_types = (1, True)
+        invalid_types = (True, )
         invalid_values = ('1.2.3.0/24', )
         for value in invalid_types:
             assert_raises(TypeError, setattr, self.ace, 'transport', value)
@@ -85,7 +88,7 @@ class TestAce(object):
         for index in range(2):
             ace = Ace()
             ace.network = NetworkLayer.from_string('1.2.3.0/24 2.3.4.0/24')
-            ace.transport = TransportLayer.from_string('tcp 1024 65535 22 22')
+            ace.transport = TransportLayerBuilder.build('tcp 1024 65535 22 22')
             ace.logging = LoggingFacility.from_string('warning')
             aces.append(ace)
         assert_equals(aces[0], aces[1])
@@ -98,7 +101,7 @@ class TestAce(object):
     def test_ineqaulity(self):
         ace = Ace()
         ace.network = NetworkLayer.from_string('1.2.3.0/24 2.3.4.0/24')
-        ace.transport = TransportLayer.from_string('tcp 1024 65535 22 22')
+        ace.transport = TransportLayerBuilder.build('tcp 1024 65535 22 22')
         ace.logging = LoggingFacility.from_string('warning')
         assert_not_equals(Ace(), ace)
         assert_not_equals(Ace(permit=False), Ace())
@@ -107,7 +110,7 @@ class TestAce(object):
         ace.network = NetworkLayer.from_string('1.2.3.0/24 2.3.4.0/24')
         assert_not_equals(ace, Ace())
         ace = Ace()
-        ace.transport = TransportLayer.from_string('tcp 1024 65535 22 22')
+        ace.transport = TransportLayerBuilder.build('tcp 1024 65535 22 22')
         assert_not_equals(ace, Ace())
 
     def test_ineqaulity_invalid(self):
@@ -120,7 +123,7 @@ class TestAce(object):
         assert_in(ace, Ace())
         ace = Ace(network=NetworkLayer.from_string('1.2.3.0/24 2.3.4.0/24'))
         assert_in(ace, Ace())
-        ace = Ace(transport=TransportLayer.from_string('tcp 1024 65535 22 22'))
+        ace = Ace(transport=TransportLayerBuilder.build('tcp 1024 65535 22 22'))
         assert_in(ace, Ace())
         ace = Ace(logging=2)
         assert_in(ace, Ace(logging=3))
@@ -128,7 +131,7 @@ class TestAce(object):
     def test_not_contains(self):
         ace = Ace(network=NetworkLayer.from_string('1.2.3.0/24 2.3.4.0/24'))
         assert_not_in(Ace(), ace)
-        ace = Ace(transport=TransportLayer.from_string('tcp 1024 65535 22 22'))
+        ace = Ace(transport=TransportLayerBuilder.build('tcp 1024 65535 22 22'))
         assert_not_in(Ace(), ace)
         ace = Ace(logging='warning')
         assert_not_in(Ace(), ace)
@@ -136,11 +139,41 @@ class TestAce(object):
     def test_repr(self):
         assert_equals(self.ace.__repr__(), '<ACE {}>'.format(str(self.ace)))
 
-    def test_str(self):
-        expected = 'permit src_net src_tran dst_net dst_tran'
+    def test_str_default(self):
+        expected = 'permit ip 0.0.0.0/0 0.0.0.0/0'
         ace = Ace()
-        ace.network.source.name = 'src_net'
-        ace.transport.source.name = 'src_tran'
-        ace.network.destination.name = 'dst_net'
-        ace.transport.destination.name = 'dst_tran'
+        assert_equals(ace.__str__(), expected)
+
+    def test_str_deny(self):
+        ace = Ace(permit=False, network='1.2.3.4 5.6.7.8')
+        expected = 'deny ip 1.2.3.4/32 5.6.7.8/32'
+        assert_equals(ace.__str__(), expected)
+
+    def test_str_unnamed_groups_default_transport(self):
+        ace = Ace(network='1.2.3.4 5.6.7.8')
+        expected = 'permit ip 1.2.3.4/32 5.6.7.8/32'
+        assert_equals(ace.__str__(), expected)
+
+    def test_str_unnamed_groups_default_tcp_transport(self):
+        ace = Ace(network='1.2.3.4 5.6.7.8', transport='tcp 1-65535 1-65535')
+        expected = 'permit tcp 1.2.3.4/32 5.6.7.8/32'
+        assert_equals(ace.__str__(), expected)
+
+    def test_str_unnamed_groups_default_udp_transport(self):
+        ace = Ace(network='1.2.3.4 5.6.7.8', transport='udp 1-65535 1-65535')
+        expected = 'permit udp 1.2.3.4/32 5.6.7.8/32'
+        assert_equals(ace.__str__(), expected)
+
+    def test_str_unnamed_groups_full_transport(self):
+        ace = Ace(network='1.2.3.4 5.6.7.8')
+        ace.transport = 'tcp 1-21 22-22'
+        expected = 'permit tcp 1.2.3.4/32 1-21 5.6.7.8/32 22'
+        assert_equals(ace.__str__(), expected)
+
+    def tst_str_unnamed_groups_destination_transport(self):
+        ace = Ace(network='1.2.3.4 5.6.7.8', transport=22)
+        expected = 'permit 1.2.3.4/32 5.6.7.8/32 22'
+        assert_equals(ace.__str__(), expected)
+        ace.transport = 'tcp 1-65535 22-22'
+        expected = 'permit 1.2.3.4/32 5.6.7.8/32 22'
         assert_equals(ace.__str__(), expected)

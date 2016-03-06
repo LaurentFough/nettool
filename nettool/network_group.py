@@ -20,8 +20,17 @@ class NetworkGroup(AddressGroup):
             network = IPv4Interface(unicode(network)).network
         return network
 
+    @property
+    def address_is_default(self):
+        """ Is the group set to the default 'any' address? """
+        if len(self.addresses) is 0:
+            return True
+        elif len(self.addresses) is 1:
+            return self.addresses[0] == self._default_address
+        return False
+
     @staticmethod
-    def address_from_string(value):
+    def address_builder(value):
         if isinstance(value, (basestring)):
             try:
                 value = IPv4Interface(unicode(value)).network
@@ -39,7 +48,7 @@ class NetworkGroup(AddressGroup):
 
     @classmethod
     def from_string(cls, value):
-        address = cls.address_from_string(value)
+        address = cls.address_builder(value)
         group = cls()
         group.add(address)
         return group

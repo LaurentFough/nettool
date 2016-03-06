@@ -58,13 +58,13 @@ class TestTransportAddress(object):
 
     def test_str(self):
         layer = TransportAddress()
-        assert_equals(layer.__str__(), 'Port 1-65535')
+        assert_equals(layer.__str__(), 'TCP/UDP 1-65535')
         layer.low = 3
-        assert_equals(layer.__str__(), 'Port 3-65535')
+        assert_equals(layer.__str__(), 'TCP/UDP 3-65535')
         layer.high = 3
-        assert_equals(layer.__str__(), 'Port 3')
+        assert_equals(layer.__str__(), 'TCP/UDP 3')
         layer.high = 5
-        assert_equals(layer.__str__(), 'Port 3-5')
+        assert_equals(layer.__str__(), 'TCP/UDP 3-5')
 
     def test_equality(self):
         layer_a = TransportAddress()

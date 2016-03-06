@@ -11,7 +11,7 @@ from nettool.ace import Ace
 # from nettool.logging_facility import LoggingFacility
 
 
-class TestAce(object):
+class TestAcl(object):
 
     def setup(self):
         pass
@@ -111,13 +111,39 @@ class TestAce(object):
         assert_equals(Acl('test01').__repr__(), expected)
 
     def test_str(self):
+        acl = Acl('test01')
         expected = 'Acl test01 #0'
-        assert_equals(Acl('test01').__str__(), expected)
+        assert_equals(acl.__str__(), expected)
+        acl.add(Ace(permit=False, network='1.2.3.0/24 4.5.6.0/24'))
+        expected = 'Acl test01 #1\n\tdeny ip 1.2.3.0/24 4.5.6.0/24'
+        assert_equals(acl.__str__(), expected)
 
-    def tst_permits(self):
-        # TODO: Fix me
+    def test_permits_ace(self):
         acl = Acl()
         assert_false(acl.permits(Ace()))
+        acl.add(Ace())
+        assert_true(acl.permits(Ace()))
+        acl.remove(Ace())
+        acl.add(Ace(network='1.2.3.0/24 4.5.6.0/24'))
+        assert_true(acl.permits(Ace(network='1.2.3.4 4.5.6.7')))
+
+    def test_permits_ace_default_permit(self):
+        acl = Acl(default_permit=True)
+        assert_true(acl.permits(Ace()))
+        acl.add(Ace(network='1.2.3.0/24 4.5.6.0/24'))
+        assert_true(acl.permits(Ace(network='4.5.6.7 1.2.3.4')))
+        acl.remove(Ace(network='1.2.3.0/24 4.5.6.0/24'))
+        acl.add(Ace(permit=False, network='1.2.3.0/24 4.5.6.0/24'))
+        # print
+        # print acl
+        # assert_true(False)
+        # assert_true(acl.permits(Ace(network='1.2.3.4 4.5.6.7')))
+
+    def test_permits_acl(self):
+        pass
+        # acl01 = Acl()
+        # acl02 = Acl()
+        # assert_false(acl01.permits(acl02))
 
     def test_default_permits(self):
         pass

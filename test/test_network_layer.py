@@ -44,12 +44,12 @@ class TestNetworkLayer(object):
     def test_repr(self):
         layer = NetworkLayer()
         rep = layer.__repr__
-        rep_txt = "<NetworkLayer <NetworkGroup [u'0.0.0.0/0']> <NetworkGroup [u'0.0.0.0/0']>>"
+        rep_txt = "<NetworkLayer 0.0.0.0/0 0.0.0.0/0>"
         assert_equals(rep(), rep_txt)
-        rep_txt = "<NetworkLayer <NetworkGroup [u'10.0.0.0/8']> <NetworkGroup [u'0.0.0.0/0']>>"
+        rep_txt = "<NetworkLayer 10.0.0.0/8 0.0.0.0/0>"
         layer.source = '10.0.0.0/8'
         assert_equals(rep(), rep_txt)
-        rep_txt = "<NetworkLayer <NetworkGroup [u'10.0.0.0/8']> <NetworkGroup [u'192.168.0.0/16']>>"
+        rep_txt = "<NetworkLayer 10.0.0.0/8 192.168.0.0/16>"
         layer.destination = '192.168.2.1/16'
         assert_equals(rep(), rep_txt)
 

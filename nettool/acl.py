@@ -96,7 +96,7 @@ class Acl(object):
                 if key_ace in self_ace and self_ace.permit is permit:
                     break
             else:
-                return self.default_permit or permit
+                return self.default_permit and permit
         return permit
 
     def __getitem__(self, index):
@@ -143,4 +143,8 @@ class Acl(object):
 
     def __str__(self):
         cls_name = self.__class__.__name__
-        return '{} {} #{}'.format(cls_name, self.name, len(self))
+        output = '{} {} #{}'.format(cls_name, self.name, len(self))
+        aces = '\n\t'.join([ace.__str__() for ace in self._aces]).strip()
+        if aces:
+            output = '{}\n\t{}'.format(output, aces)
+        return output

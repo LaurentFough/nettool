@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from nettool.network_layer import NetworkLayer
-from nettool.transport_layer import TransportLayer
+from nettool.transport_layer_builder import TransportLayerBuilder
 from nettool.logging_facility import LoggingFacility
 from nettool._tools import raise_type_exception
 
@@ -42,7 +42,9 @@ class Ace(object):
 
     @transport.setter
     def transport(self, value):
-        self._transport = self._type_initialization(value, TransportLayer)
+        if value is not None:
+            value = TransportLayerBuilder.build(value)
+        self._transport = value
 
     @staticmethod
     def _type_initialization(value, cls):
@@ -59,7 +61,8 @@ class Ace(object):
             raise_type_exception(key, (self.__class__, ), 'test equality of')
         if key.permit == self.permit:
             if key.logging == self.logging:
-                if key.transport == self.transport:
+                if isinstance(key.transport, type(self.transport)) and \
+                        key.transport == self.transport:
                     return key.network == self.network
         return False
 
@@ -73,7 +76,9 @@ class Ace(object):
             raise_type_exception(key, (self.__class__, ), 'test membership of')
         if key.permit == self.permit:
             if key.logging in self.logging:
-                if key.transport in self.transport:
+                if self._transport is None or \
+                    (isinstance(key.transport, type(self.transport)) and
+                        key.transport in self.transport):
                     return key.network in self.network
         return False
 
@@ -81,16 +86,38 @@ class Ace(object):
         cls_name = self.__class__.__name__.upper()
         return '<{} {}>'.format(cls_name, self.__str__())
 
+    def _iter_layers(self):
+        source_ports = [None]
+        destination_ports = [None]
+        if self.transport is not None:
+            source_ports = self.transport.source.addresses
+            destination_ports = self.transport.destination.addresses
+
+        for src_net in self.network.source.addresses:
+            for src_port in source_ports:
+                for dst_net in self.network.destination.addresses:
+                    for dst_port in destination_ports:
+                        yield src_net, src_port, dst_net, dst_port
+
     def __str__(self):
-        output = list()
-        permit = 'permit'
+        permission = 'permit'
         if not self.permit:
-            permit = 'deny'
-        output.append(permit)
-        output.append(self.network.source.name)
-        output.append(self.transport.source.name)
-        output.append(self.network.destination.name)
-        output.append(self.transport.destination.name)
-        if self.logging.level is not None:
-            output.append(self.logging.name)
-        return ' '.join(output)
+            permission = 'deny'
+        output = list()
+        for src_net, src_port, dst_net, dst_port in self._iter_layers():
+            line = list()
+            line.append(permission)
+            if self.transport is not None:
+                line.append(self.transport.destination[0].type.lower())
+            else:
+                line.append('ip')
+            line.append(str(src_net))
+            if src_port is not None and src_port != src_port.__class__():
+                line.append(src_port._port_string())
+            line.append(str(dst_net))
+            if dst_port is not None and dst_port != dst_port.__class__():
+                line.append(dst_port._port_string())
+            if self.logging.level is not None:
+                line.append(self.logging.name)
+            output.append(' '.join(line).replace('  ', ' ').strip())
+        return '\r\n'.join(output).replace('  ', ' ').strip()

@@ -4,6 +4,7 @@ from nose.tools import assert_equals, assert_raises, assert_not_equals
 from nose.tools import assert_is_instance, assert_in, assert_not_in
 
 from nettool.transport_layer import TransportLayer
+from nettool.transport_layer_builder import TransportLayerBuilder
 from nettool.transport_group import TransportGroup
 from nettool.transport_address import TransportAddress
 from nettool.tcp_address import TcpAddress
@@ -14,7 +15,7 @@ class TestTransportLayer(object):
 
     def setup(self):
         self.invalid_values = ('port', )
-        self.invalid_types = (0, True, False)
+        self.invalid_types = (True, False)
         self.invalid_contains = ('port', 0, True, False)
 
     def test_initialization(self):
@@ -58,20 +59,20 @@ class TestTransportLayer(object):
         assert_raises(ValueError, setattr, layer, 'destination', 'invalid')
 
     def test_from_string(self):
-        layer = TransportLayer.from_string('tcp 1 2 3 4')
+        layer = TransportLayerBuilder.build('tcp 1 2 3 4')
         assert_in(TcpAddress.from_string('1 2'), layer.source)
         assert_in(TcpAddress.from_string('3 4'), layer.destination)
-        layer = TransportLayer.from_string('udp 1-2 3-4')
+        layer = TransportLayerBuilder.build('udp 1-2 3-4')
         assert_in(UdpAddress.from_string('1 2'), layer.source)
         assert_in(UdpAddress.from_string('3 4'), layer.destination)
-        layer = TransportLayer.from_string('tcp 1-2 3 4')
+        layer = TransportLayerBuilder.build('tcp 1-2 3 4')
         assert_in(TcpAddress.from_string('1 2'), layer.source)
-        layer = TransportLayer.from_string('tcp 1 2')
+        layer = TransportLayerBuilder.build('tcp 1 2')
         assert_in(TcpAddress.from_string('1'), layer.source)
         assert_in(TcpAddress.from_string('2'), layer.destination)
 
     def test_from_string_invalid(self):
-        from_string = TransportLayer.from_string
+        from_string = TransportLayerBuilder.build
         for value in self.invalid_types:
             assert_raises(TypeError, from_string, value)
         for value in self.invalid_values:
@@ -82,7 +83,7 @@ class TestTransportLayer(object):
         layer = TransportLayer()
         layer.source.name = 'src'
         layer.destination.name = 'dst'
-        assert_equals(layer.__repr__(), "<TransportLayer 'src' 'dst'>")
+        assert_equals(layer.__repr__(), "<TransportLayer src dst>")
 
     def test_equality(self):
         layer01 = TransportLayer()

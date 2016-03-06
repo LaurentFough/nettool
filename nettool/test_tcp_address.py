@@ -22,6 +22,9 @@ class TestTcpAddress(object):
     def test_str(self):
         assert_equals(self.address.__str__(), "TCP 1-2")
 
+    def test_from_string(self):
+        assert_equals(self.address.__str__(), "TCP 1-2")
+
     def test_contains(self):
         tcp_port = TcpAddress.from_string('1')
         tcp_ports = TcpAddress.from_string('1-3')

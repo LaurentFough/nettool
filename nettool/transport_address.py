@@ -5,7 +5,8 @@ from nettool._tools import raise_type_exception
 
 
 class TransportAddress(object):
-    _address_name = 'Port'
+    _address_name = 'TCP/UDP'
+    type = 'TCP/UDP'
     _min = 1
     _max = 65535
 
@@ -93,19 +94,21 @@ class TransportAddress(object):
                 raise ValueError(message)
         self._high = value
 
-    def _port_range_string(self):
+    def _port_string(self):
         if self.low == self.high:
-            port = self.low
+            port = str(self.low)
         else:
             port = '{}-{}'.format(self.low, self.high)
         return port
 
     def __repr__(self):
-        port = self._port_range_string()
+        port = self._port_string()
         return '<{} {}>'.format(self.__class__.__name__, port)
 
     def __str__(self):
-        port = self._port_range_string()
+        port = self._port_string()
+        # if port == '{}-{}'.format(self._min, self._max):
+        #     return ''
         return '{} {}'.format(self._address_name, port)
 
     def __eq__(self, key):

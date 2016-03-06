@@ -18,6 +18,10 @@ class TestNetworkGroup(object):
         group = NetworkGroup()
         assert_equals(group.addresses, [NetworkGroup._default_address])
 
+    def test_addresses_getitem(self):
+        group = NetworkGroup()
+        assert_equals(group.addresses[0], IPv4Network(u'0.0.0.0/0'))
+
     def test_add(self):
         group = NetworkGroup()
         address04 = IPv4Network(u'10.0.0.0/8')
@@ -30,7 +34,19 @@ class TestNetworkGroup(object):
 
     def test_address_from_string_invalid(self):
         for value in self.invalid_types:
-            assert_raises(TypeError, NetworkGroup.address_from_string, value)
+            assert_raises(TypeError, NetworkGroup.address_builder, value)
+
+    def test_address_is_default(self):
+        group = NetworkGroup()
+        print group.addresses[0].__class__
+        assert_true(group.address_is_default)
+        group.add(self.address01)
+        assert_false(group.address_is_default)
+        group.add(self.address02)
+        group.remove(self.address01)
+        assert_false(group.address_is_default)
+        group.remove(self.address02)
+        assert_true(group.address_is_default)
 
     def test_has(self):
         group = NetworkGroup()
@@ -58,9 +74,9 @@ class TestNetworkGroup(object):
 
     def test_repr(self):
         group = NetworkGroup()
-        assert_equals(group.__repr__(), "<NetworkGroup [u'0.0.0.0/0']>")
+        assert_equals(group.__repr__(), "<NetworkGroup 0.0.0.0/0>")
         group.add(self.address01)
-        assert_equals(group.__repr__(), "<NetworkGroup [u'10.0.0.0/8']>")
+        assert_equals(group.__repr__(), "<NetworkGroup 10.0.0.0/8>")
         group.add(self.address02)
         assert_equals(group.__repr__(), "<NetworkGroup [u'10.0.0.0/8', u'192.168.0.0/16']>")
 
