@@ -3,10 +3,10 @@
 from nose.tools import assert_equals, assert_raises, assert_not_equals, assert_true
 from nose.tools import assert_false, assert_in, assert_not_in, assert_is_instance
 
-from nettool.transport_group import TransportGroup
-from nettool.transport_address import TransportAddress
-from nettool.tcp_address import TcpAddress
-from nettool.udp_address import UdpAddress
+from nettool.address.transport_group import TransportGroup
+from nettool.address.transport_address import TransportAddress
+from nettool.address.tcp_address import TcpAddress
+from nettool.address.udp_address import UdpAddress
 
 
 class TestTransportGroup(object):

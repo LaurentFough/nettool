@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # import ipaddress
-from ipv4address import IPv4Address
+from nettool.address.ipv4address import IPv4Address
 
 from nettool.nettest import NetTest as nu
 

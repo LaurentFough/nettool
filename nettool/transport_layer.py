@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from nettool.transport_group import TransportGroup
-from nettool._tools import raise_type_exception
+from nettool.address.transport_group import TransportGroup
+from nettool.utilities import raise_type_exception
 
 
 class TransportLayer(object):

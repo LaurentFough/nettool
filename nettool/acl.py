@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from nettool.ace import Ace
-from nettool._tools import raise_type_exception
+from nettool.utilities import raise_type_exception
 
 
 class Acl(object):

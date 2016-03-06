@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from nettool.validate import Validate
 from nettool.host import Hostname
 
 from nose.tools import assert_raises, assert_equals, assert_not_equals
@@ -31,13 +30,6 @@ class TestHostname(object):
     def test_initilization_invalid(self):
         assert_raises(ValueError, Hostname, '1.2.3.4', '2.3.4.5')
 
-    def test_validation_host_length(self):
-        name_too_short = ''
-        assert_raises(ValueError, Validate.host, name_too_short)
-
-        name_too_long = 'x' * 64
-        assert_raises(ValueError, Validate.host, name_too_long)
-
     def test_validation_domain_length(self):
         valid_hostname = 'hostname'
         invalid_domain = 'x' * 254
@@ -47,7 +39,8 @@ class TestHostname(object):
     def test_str(self):
         assert_equals(str(Hostname(name=None, ip='1.2.3.4')), '1.2.3.4')
         assert_equals(str(Hostname(name='hostname', ip='1.2.3.4')), 'hostname 1.2.3.4')
-        assert_equals(str(Hostname(name='hostname.example.com', ip='1.2.3.4')), 'hostname.example.com 1.2.3.4')
+        assert_equals(str(Hostname(name='hostname.example.com', ip='1.2.3.4')),
+                      'hostname.example.com 1.2.3.4')
         assert_equals(str(Hostname(name='hostname.example.com')), 'hostname.example.com')
 
     def test_validation_ip(self):
@@ -55,18 +48,6 @@ class TestHostname(object):
         assert_raises(TypeError, setattr, h, 'ip', 1)
         assert_raises(ValueError, setattr, h, 'ip', '2.3.4.256')
         assert_raises(ValueError, setattr, h, 'ip', 'sadf')
-
-    def test_validation_host_character_set(self):
-        invalid_encoding = u'høst'
-        assert_raises(ValueError, Validate.host, invalid_encoding)
-        invalid_character = 'h+st'
-        assert_raises(ValueError, Validate.host, invalid_character)
-
-    def test_validation_fqdn_character_set(self):
-        invalid_encoding = u'høst'
-        assert_raises(ValueError, Validate.host, invalid_encoding)
-        invalid_character = 'h+st'
-        assert_raises(ValueError, Validate.host, invalid_character)
 
     def test_cleanup_host(self):
         hostname = 'host1.example.com.'

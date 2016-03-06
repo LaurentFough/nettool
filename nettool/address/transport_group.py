@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from nettool.transport_address import TransportAddress
-from nettool.transport_address_builder import TransportAddressBuilder
-from nettool.tcp_address import TcpAddress
-from nettool.udp_address import UdpAddress
-# from nettool._tools import raise_type_exception
-from nettool.address_group import AddressGroup
+from nettool.address.transport_address import TransportAddress
+from nettool.address.transport_address_builder import TransportAddressBuilder
+from nettool.address.tcp_address import TcpAddress
+from nettool.address.udp_address import UdpAddress
+from nettool.address.address_group import AddressGroup
 
 
 class TransportGroup(AddressGroup):
@@ -17,7 +16,6 @@ class TransportGroup(AddressGroup):
     def __init__(self, name=None):
         self.name = name
         self._addresses = list()
-
 
     @staticmethod
     def address_builder(address):

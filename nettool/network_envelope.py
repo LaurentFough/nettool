@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from nettool._tools import raise_type_exception
+from nettool.utilities import raise_type_exception
 
 
 class NetworkEnvelope(object):

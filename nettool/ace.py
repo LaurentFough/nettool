@@ -3,7 +3,7 @@
 from nettool.network_layer import NetworkLayer
 from nettool.transport_layer_builder import TransportLayerBuilder
 from nettool.logging_facility import LoggingFacility
-from nettool._tools import raise_type_exception
+from nettool.utilities import raise_type_exception
 
 
 class Ace(object):

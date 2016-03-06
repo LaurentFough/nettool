@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from nettool.transport_address import TransportAddress
+from nettool.address.transport_address import TransportAddress
 
 
 class TcpAddress(TransportAddress):

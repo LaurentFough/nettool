@@ -2,8 +2,8 @@
 
 from nose.tools import assert_equals, assert_in, assert_not_in
 
-from nettool.tcp_address import TcpAddress
-from nettool.udp_address import UdpAddress
+from nettool.address.tcp_address import TcpAddress
+from nettool.address.udp_address import UdpAddress
 
 
 class TestUdpAddress(object):

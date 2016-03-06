@@ -3,7 +3,7 @@
 from ipaddress import IPv4Network
 from nose.tools import assert_equals, assert_not_equals, assert_true, assert_raises
 from nose.tools import assert_false, assert_in, assert_not_in, assert_is_instance
-from nettool.network_group import NetworkGroup
+from nettool.address.network_group import NetworkGroup
 
 
 class TestNetworkGroup(object):

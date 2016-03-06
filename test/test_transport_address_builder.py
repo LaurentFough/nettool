@@ -2,10 +2,10 @@
 
 from nose.tools import assert_is_instance, assert_raises, assert_equals
 
-from nettool.transport_address_builder import TransportAddressBuilder
-from nettool.transport_address import TransportAddress
-from nettool.tcp_address import TcpAddress
-from nettool.udp_address import UdpAddress
+from nettool.address.transport_address_builder import TransportAddressBuilder
+from nettool.address.transport_address import TransportAddress
+from nettool.address.tcp_address import TcpAddress
+from nettool.address.udp_address import UdpAddress
 
 
 class TestTransportAddressBuilder(object):

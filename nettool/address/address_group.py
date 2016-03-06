@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from nettool._tools import list_repr, raise_type_exception
+from nettool.utilities import list_repr, raise_type_exception
 
 
 class AddressGroup(object):

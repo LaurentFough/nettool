@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from nettool.transport_address import TransportAddress
-from nettool.tcp_address import TcpAddress
-from nettool.udp_address import UdpAddress
-from nettool._tools import raise_type_exception
+from nettool.address.transport_address import TransportAddress
+from nettool.address.tcp_address import TcpAddress
+from nettool.address.udp_address import UdpAddress
+from nettool.utilities import raise_type_exception
 
 
 class TransportAddressBuilder(object):

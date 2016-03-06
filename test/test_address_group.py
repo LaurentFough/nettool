@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from nose.tools import assert_equals, assert_raises
-from nettool.address_group import AddressGroup
+from nettool.address.address_group import AddressGroup
 
 
 class TestAddressGroup(object):
