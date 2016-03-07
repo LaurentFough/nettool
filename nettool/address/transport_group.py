@@ -9,7 +9,6 @@ from nettool.address.address_group import AddressGroup
 
 class TransportGroup(AddressGroup):
     _address_name = 'Transport'
-    _default_name = 'Transport Group'
     _default_address = TransportAddress()
     _address_type = (TransportAddress, TcpAddress, UdpAddress)
 

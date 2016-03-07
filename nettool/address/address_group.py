@@ -4,8 +4,7 @@ from nettool.utilities import list_repr, raise_type_exception
 
 
 class AddressGroup(object):
-    _address_name = 'Generic'
-    _default_name = 'Group'
+    _default_name = None
     _default_address = None
 
     def __init__(self, name=None):

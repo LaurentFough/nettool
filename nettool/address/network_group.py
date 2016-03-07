@@ -7,7 +7,6 @@ from nettool.nettest import NetTest as nu
 
 
 class NetworkGroup(AddressGroup):
-    _default_name = 'Network Group'
     _default_address = IPv4Network(u'0.0.0.0/0')
     _address_type = (IPv4Network, )
 

@@ -86,25 +86,41 @@ class Ace(object):
         cls_name = self.__class__.__name__.upper()
         return '<{} {}>'.format(cls_name, self.__str__())
 
-    def _iter_layers(self):
+    def _iter_layers(self, groups=False):
         source_ports = [None]
         destination_ports = [None]
         if self.transport is not None:
             source_ports = self.transport.source.addresses
             destination_ports = self.transport.destination.addresses
+            if groups and self.transport.source.name is not None:
+                source_ports = [self.transport.source.name]
+            if groups and self.transport.destination.name is not None:
+                destination_ports = [self.transport.destination.name]
+        source_networks = self.network.source.addresses
+        destination_networks = self.network.destination.addresses
+        if groups and self.network.source.name is not None:
+            source_networks = [self.network.source.name]
+        if groups and self.network.destination.name is not None:
+            destination_networks = [self.network.destination.name]
 
-        for src_net in self.network.source.addresses:
+        for src_net in source_networks:
             for src_port in source_ports:
-                for dst_net in self.network.destination.addresses:
+                for dst_net in destination_networks:
                     for dst_port in destination_ports:
                         yield src_net, src_port, dst_net, dst_port
 
     def __str__(self):
+        return self._print(groups=False)
+
+    def print_group(self):
+        return self._print(groups=True)
+
+    def _print(self, groups=True):
         permission = 'permit'
         if not self.permit:
             permission = 'deny'
         output = list()
-        for src_net, src_port, dst_net, dst_port in self._iter_layers():
+        for src_net, src_port, dst_net, dst_port in self._iter_layers(groups=groups):
             line = list()
             line.append(permission)
             if self.transport is not None:
@@ -113,10 +129,16 @@ class Ace(object):
                 line.append('ip')
             line.append(str(src_net))
             if src_port is not None and src_port != src_port.__class__():
-                line.append(src_port._port_string())
+                if isinstance(src_port, basestring):
+                    line.append(src_port)
+                else:
+                    line.append(src_port._port_string())
             line.append(str(dst_net))
             if dst_port is not None and dst_port != dst_port.__class__():
-                line.append(dst_port._port_string())
+                if isinstance(dst_port, basestring):
+                    line.append(dst_port)
+                else:
+                    line.append(dst_port._port_string())
             if self.logging.level is not None:
                 line.append(self.logging.name)
             output.append(' '.join(line).replace('  ', ' ').strip())

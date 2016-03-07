@@ -7,6 +7,8 @@ from nettool.ace import Ace
 from nettool.layer.network_layer import NetworkLayer
 from nettool.layer.transport_layer import TransportLayer
 from nettool.layer.transport_layer_builder import TransportLayerBuilder
+from nettool.address.network_group import NetworkGroup
+from nettool.address.transport_group import TransportGroup
 from nettool.logging_facility import LoggingFacility
 
 
@@ -138,6 +140,22 @@ class TestAce(object):
 
     def test_repr(self):
         assert_equals(self.ace.__repr__(), '<ACE {}>'.format(str(self.ace)))
+
+    def test_print_group_network(self):
+        source = NetworkGroup(name='source')
+        destination = NetworkGroup(name='destination')
+        network = NetworkLayer(source=source, destination=destination)
+        ace = Ace(network=network)
+        expected = 'permit ip source destination'
+        assert_equals(ace.print_group(), expected)
+
+    def test_print_group_transport(self):
+        source = TransportGroup(name='source')
+        destination = TransportGroup(name='destination')
+        transport = TransportLayer(source=source, destination=destination)
+        ace = Ace(transport=transport)
+        expected = 'permit tcp/udp 0.0.0.0/0 source 0.0.0.0/0 destination'
+        assert_equals(ace.print_group(), expected)
 
     def test_str_default(self):
         expected = 'permit ip 0.0.0.0/0 0.0.0.0/0'
