@@ -6,7 +6,8 @@ from nettool.utilities import raise_type_exception
 
 class TransportLayer(object):
 
-    def __init__(self, source=None, destination=None):
+    def __init__(self, name=None, source=None, destination=None):
+        self.name = name
         self.source = source
         self.destination = destination
 
@@ -28,7 +29,7 @@ class TransportLayer(object):
 
     @source.setter
     def source(self, value):
-        self._source = TransportLayer._build_transport_group(value)
+        self._source = self._build_transport_group(value)
 
     @property
     def destination(self):
@@ -36,7 +37,7 @@ class TransportLayer(object):
 
     @destination.setter
     def destination(self, value):
-        self._destination = TransportLayer._build_transport_group(value)
+        self._destination = self._build_transport_group(value)
 
     def __repr__(self):
         output = ''
@@ -47,18 +48,18 @@ class TransportLayer(object):
         return '<{}{}>'.format(class_name, output).replace('  ', ' ')
 
     def __eq__(self, key):
-        if not isinstance(key, TransportLayer):
-            raise_type_exception(key, (TransportLayer, ), 'test equality of')
+        if not isinstance(key, self.__class__):
+            raise_type_exception(key, (self.__class__, ), 'test equality of')
         return self.source == key.source and self.destination == key.destination
 
     def __ne__(self, key):
         return not self.__eq__(key)
 
     def __contains__(self, key):
-        if isinstance(key, TransportLayer):
+        if isinstance(key, self.__class__):
             for side in ('source', 'destination'):
                 for key_address in getattr(key, side).addresses:
                     if key_address not in getattr(self, side):
                         return False
             return True
-        raise_type_exception(key, (TransportLayer, ), 'test membership of')
+        raise_type_exception(key, (self.__class__, ), 'test membership of')

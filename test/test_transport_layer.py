@@ -36,9 +36,9 @@ class TestTransportLayer(object):
 
     def test_initialization_invalid(self):
         for value in self.invalid_values:
-            assert_raises(ValueError, TransportLayer, value)
+            assert_raises(ValueError, TransportLayer, None, value)
         for value in self.invalid_types:
-            assert_raises(TypeError, TransportLayer, value)
+            assert_raises(TypeError, TransportLayer, None, value)
 
     def test_src_dst_setter(self):
         layer = TransportLayer()
