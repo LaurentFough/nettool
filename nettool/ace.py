@@ -86,7 +86,19 @@ class Ace(object):
         cls_name = self.__class__.__name__.upper()
         return '<{} {}>'.format(cls_name, self.__str__())
 
-    def _iter_layers(self, groups=False):
+    def _iter_networks(self, groups=False):
+        source_networks = self.network.source.addresses
+        destination_networks = self.network.destination.addresses
+        if groups and self.network.source.name is not None:
+            source_networks = [self.network.source.name]
+        if groups and self.network.destination.name is not None:
+            destination_networks = [self.network.destination.name]
+
+        for src_net in source_networks:
+            for dst_net in destination_networks:
+                yield src_net, dst_net
+
+    def _iter_transport(self, groups=False):
         source_ports = [None]
         destination_ports = [None]
         if self.transport is not None:
@@ -96,18 +108,14 @@ class Ace(object):
                 source_ports = [self.transport.source.name]
             if groups and self.transport.destination.name is not None:
                 destination_ports = [self.transport.destination.name]
-        source_networks = self.network.source.addresses
-        destination_networks = self.network.destination.addresses
-        if groups and self.network.source.name is not None:
-            source_networks = [self.network.source.name]
-        if groups and self.network.destination.name is not None:
-            destination_networks = [self.network.destination.name]
+        for src_port in source_ports:
+            for dst_port in destination_ports:
+                yield src_port, dst_port
 
-        for src_net in source_networks:
-            for src_port in source_ports:
-                for dst_net in destination_networks:
-                    for dst_port in destination_ports:
-                        yield src_net, src_port, dst_net, dst_port
+    def _iter_layers(self, groups=False):
+        for src_net, dst_net in self._iter_networks(groups=groups):
+            for src_port, dst_port in self._iter_transport(groups=groups):
+                yield src_net, src_port, dst_net, dst_port
 
     def __str__(self):
         return self._print(groups=False)
