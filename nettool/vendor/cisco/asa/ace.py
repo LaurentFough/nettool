@@ -32,7 +32,8 @@ class AsaAddress(object):
             if transport.name is not None:
                 protocol = 'object-group {}'.format(transport.name)
             else:
-                protocol = cls.protocol(transport.source[0], transport.destination[0])
+                protocol = cls.protocol(transport.source[0],
+                                        transport.destination[0])
         return protocol
 
     @classmethod
@@ -59,7 +60,8 @@ class AsaAddress(object):
     @classmethod
     def network(cls, network):
         if isinstance(network, IPv4Network):
-            network = '{} {}'.format(str(network.network_address), str(network.netmask))
+            network = '{} {}'.format(str(network.network_address),
+                                     str(network.netmask))
         return network
 
     @classmethod
@@ -100,7 +102,8 @@ class Ace(GenericAce):
         for side in ('source', 'destination'):
             line.append(AsaAddress.network_group(getattr(self.network, side)))
             if self.transport is not None and self.transport.name is None:
-                line.append(AsaAddress.transport_group(getattr(self.transport, side)))
+                tg = AsaAddress.transport_group(getattr(self.transport, side))
+                line.append(tg)
         line.append(suffix)
         output.append(' '.join(line).replace('  ', ' ').strip())
         return output

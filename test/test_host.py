@@ -2,7 +2,8 @@
 
 from nettool.host import Host, Hostname, HostnameList
 
-from nose.tools import assert_raises, assert_equals, assert_in, assert_not_in, assert_true, assert_false
+from nose.tools import assert_raises, assert_equals, assert_in, assert_not_in
+from nose.tools import assert_true, assert_false
 
 
 class TestHost(object):

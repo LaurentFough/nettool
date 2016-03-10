@@ -7,7 +7,8 @@ class IPv4Address(ipaddress.IPv4Address):
 
     def __init__(self, address):
         if not isinstance(address, basestring):
-            raise TypeError("Invalid type used in IP initilization: '{}'. Must use a string".format(type(address).__name__))
+            message = "Invalid type used in IP initilization: '{}'. Must use a string"
+            raise TypeError(message.format(type(address).__name__))
         if isinstance(address, str):
             address = unicode(address)
         try:

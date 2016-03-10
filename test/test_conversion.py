@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import ipaddress
+from ipaddress import IPv4Interface as IPv4Int
 
 from nose.tools import assert_equals, assert_raises
 
@@ -10,8 +10,13 @@ from nettool.nettest import NetTest as nu
 class TestConversion(object):
 
     def setup(self):
-        self.netmasks = [ipaddress.IPv4Interface(unicode('255.255.255.255/{0}'.format(x))).network.network_address.exploded for x in range(0, 33)]
-        self.wildcards = [ipaddress.IPv4Interface(unicode('0.0.0.0/{0}'.format(x))).network.hostmask.exploded for x in range(0, 33)]
+        self.netmasks = list()
+        self.wildcards = list()
+        for x in range(0, 33):
+            netmask = IPv4Int(u'255.255.255.255/{0}'.format(x)).network.network_address.exploded
+            self.netmasks.append(netmask)
+            wildcard = IPv4Int(u'0.0.0.0/{0}'.format(x)).network.hostmask.exploded
+            self.wildcards.append(wildcard)
 
     def test_netmask_to_wildcard_conversion(self):
         for index, netmask in enumerate(self.netmasks):
@@ -62,7 +67,8 @@ class TestConversion(object):
         assert_equals(nu.coerce.string.hostname('-hostname.example.com.'), 'hostname.example.com')
         assert_equals(nu.coerce.string.hostname('host_name.example.com'), 'host-name.example.com')
         assert_equals(nu.coerce.string.hostname(' hostname.example.com '), 'hostname.example.com')
-        assert_equals(nu.coerce.string.hostname(' hostname(a)-1.example.com '), 'hostname-a-1.example.com')
+        hostname = nu.coerce.string.hostname(' hostname(a)-1.example.com ')
+        assert_equals(hostname, 'hostname-a-1.example.com')
         assert_equals(nu.coerce.string.hostname(u'ø.example.com'), 'o.example.com')
         assert_equals(nu.coerce.string.hostname(u'å.example.com'), 'a.example.com')
         assert_equals(nu.coerce.string.hostname('host/a.example.com'), 'host-a.example.com')
