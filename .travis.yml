@@ -3,9 +3,16 @@ python:
   - "2.7"
 # command to install dependencies
 install:
+  - pip install flake8
   - pip install coveralls
+  - pip install radon
   - pip install .
 # command to run tests
-script: nosetests --with-coverage --cover-package=nettool
+before_script:
+  - radon mi nettool --min B
+  - radon cc nettool --total-average --min C
+  - flake8 --max-line-length=100 --max-complexity 10
+script:
+  - nosetests -q --with-coverage --cover-package=nettool --cover-min-percentage 80
 after_success:
   - coveralls
