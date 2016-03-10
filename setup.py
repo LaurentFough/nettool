@@ -93,7 +93,11 @@ setup(
     # $ pip install -e .[dev,test]
     extras_require={
         # 'dev': ['check-manifest'],
-        'test': ['coverage', 'nose'],
+        'test': [
+            'coverage',
+            'nose',
+            'ipaddress',
+        ],
     },
 
     # If there are data files included in your packages that need to be
