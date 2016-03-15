@@ -132,19 +132,23 @@ class Hostname(object):
             ip = ' {}'.format(self.ip)
         return '<Host {}{}>'.format(hostname, ip)
 
+    def _string_equality(self, value):
+        try:
+            ip = IPv4Address(value)
+            return ip == self.ip
+        except ValueError:
+            pass
+        if '.' in value.rstrip('.'):
+            value = Hostname._clean_fqdn(value)
+            return value == self.fqdn
+        else:
+            value = Hostname._clean_name(value)
+            return value == self.name
+        return False
+
     def __eq__(self, value):
         if isinstance(value, basestring):
-            try:
-                ip = IPv4Address(value)
-                return ip == self.ip
-            except ValueError:
-                pass
-            if '.' in value.rstrip('.'):
-                value = Hostname._clean_fqdn(value)
-                return value == self.fqdn
-            else:
-                value = Hostname._clean_name(value)
-                return value == self.name
+            return self._string_equality(value)
         elif isinstance(value, Hostname):
             if self.domain and value.domain:
                 if self.fqdn == value.fqdn:
