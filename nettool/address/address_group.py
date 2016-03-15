@@ -34,7 +34,9 @@ class AddressGroup(object):
 
     @staticmethod
     def from_string(cls, value):
-        if isinstance(value, basestring):
+        if isinstance(value, cls):
+            return value
+        elif isinstance(value, basestring):
             value = cls._clean_address(value)
             group = cls()
             group.add(value)
@@ -113,6 +115,15 @@ class AddressGroup(object):
     def __getitem__(self, index):
         return self.addresses[index]
 
+    def _contains_address_group(self, key):
+        for key_address in key.addresses:
+            for self_address in self.addresses:
+                if self._is_member(key_address, self_address):
+                    break
+            else:
+                return False
+        return True
+
     def __contains__(self, key):
         valid_types = self._address_type + (self.__class__, )
         if not isinstance(key, valid_types):
@@ -120,16 +131,7 @@ class AddressGroup(object):
         if not isinstance(key, valid_types):
             raise_type_exception(key, valid_types, 'test membership of')
         if isinstance(key, self.__class__):
-            found = False
-            for key_address in key.addresses:
-                for self_address in self.addresses:
-                    if self._is_member(key_address, self_address):
-                        found = True
-                        break
-                if not found:
-                    return False
-                found = False
-            return True
+            return self._contains_address_group(key)
         elif isinstance(key, self._address_type):
             for address in self.addresses:
                 if self._is_member(key, address):
