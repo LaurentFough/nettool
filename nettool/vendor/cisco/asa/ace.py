@@ -109,16 +109,10 @@ class Ace(GenericAce):
         return output
 
     def _ace_print(self, expand=False):
-        permission = 'permit'
-        if not self.permit:
-            permission = 'deny'
-        prefix = permission
+        prefix = self._get_permission_string()
+        suffix = str(self.logging)
 
-        suffix = ''
-        if self.logging.level is not None:
-            suffix = self.logging.name
         output = list()
-
         if not expand and self._is_grouped():
             output = self._collapsed_print(prefix, suffix)
 

@@ -123,14 +123,17 @@ class Ace(object):
     def print_group(self):
         return self._print(groups=True)
 
-    def _print(self, groups=True):
+    def _get_permission_string(self):
         permission = 'permit'
         if not self.permit:
             permission = 'deny'
+        return permission
+
+    def _print(self, groups=True):
         output = list()
         for src_net, src_port, dst_net, dst_port in self._iter_layers(groups=groups):
             line = list()
-            line.append(permission)
+            line.append(self._get_permission_string())
             if self.transport is not None:
                 line.append(self.transport.destination[0].type.lower())
             else:
@@ -147,7 +150,6 @@ class Ace(object):
                     line.append(dst_port)
                 else:
                     line.append(dst_port._port_string())
-            if self.logging.level is not None:
-                line.append(self.logging.name)
+            line.append(str(self.logging))
             output.append(' '.join(line).replace('  ', ' ').strip())
         return '\r\n'.join(output).replace('  ', ' ').strip()

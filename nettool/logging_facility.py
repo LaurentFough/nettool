@@ -67,6 +67,12 @@ class LoggingFacility(object):
     def __repr__(self):
         return '<{} {}>'.format(self.__class__.__name__, self.name)
 
+    def __str__(self):
+        output = ''
+        if self.level is not None:
+            output = self.logging.name
+        return output
+
     def __eq__(self, key):
         if not isinstance(key, LoggingFacility):
             key = self.from_string(key)
