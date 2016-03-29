@@ -123,33 +123,51 @@ class Ace(object):
     def print_group(self):
         return self._print(groups=True)
 
-    def _get_permission_string(self):
+    def _print_protocol(self):
+        protocol = 'ip'
+        if self.transport is not None:
+            protocol = self.transport.destination[0].type.lower()
+        return protocol
+
+    def _print_permission(self):
         permission = 'permit'
         if not self.permit:
             permission = 'deny'
         return permission
 
+    @classmethod
+    def _print_network(cls, network):
+        return str(network)
+
+    @classmethod
+    def _print_transport(cls, transport):
+        output = ''
+        if transport is not None and transport != transport.__class__():
+            if isinstance(transport, basestring):
+                output = transport
+            else:
+                output = transport._port_string()
+        return output
+
     def _print(self, groups=True):
         output = list()
         for src_net, src_port, dst_net, dst_port in self._iter_layers(groups=groups):
+            permission = self._print_permission()
+            protocol = self._print_protocol()
+            source_network = self._print_network(src_net)
+            destination_network = self._print_network(dst_net)
+            source_port = self._print_transport(src_port)
+            destination_port = self._print_transport(dst_port)
+            logging = str(self.logging)
+
             line = list()
-            line.append(self._get_permission_string())
-            if self.transport is not None:
-                line.append(self.transport.destination[0].type.lower())
-            else:
-                line.append('ip')
-            line.append(str(src_net))
-            if src_port is not None and src_port != src_port.__class__():
-                if isinstance(src_port, basestring):
-                    line.append(src_port)
-                else:
-                    line.append(src_port._port_string())
-            line.append(str(dst_net))
-            if dst_port is not None and dst_port != dst_port.__class__():
-                if isinstance(dst_port, basestring):
-                    line.append(dst_port)
-                else:
-                    line.append(dst_port._port_string())
-            line.append(str(self.logging))
+            line.append(permission)
+            line.append(protocol)
+            line.append(source_network)
+            line.append(source_port)
+            line.append(destination_network)
+            line.append(destination_port)
+            line.append(logging)
+
             output.append(' '.join(line).replace('  ', ' ').strip())
         return '\r\n'.join(output).replace('  ', ' ').strip()

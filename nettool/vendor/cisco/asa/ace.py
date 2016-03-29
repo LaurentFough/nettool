@@ -26,7 +26,7 @@ class AsaAddress(object):
         return protocol
 
     @classmethod
-    def protocol_group(cls, transport):
+    def protocol_name(cls, transport):
         protocol = 'ip'
         if transport is not None:
             if transport.name is not None:
@@ -50,12 +50,15 @@ class AsaAddress(object):
         return port
 
     @classmethod
-    def transport_group(cls, transport):
-        if transport.name is not None:
-            transport = 'object-group {}'.format(transport.name)
-        else:
-            transport = cls.transport(transport[0])
-        return transport
+    def transport_name(cls, transport, side):
+        output = ''
+        if transport is not None and transport.name is None:
+            transport_side = getattr(transport, side)
+            if transport_side.name is not None:
+                output = 'object-group {}'.format(transport_side.name)
+            else:
+                output = cls.transport(transport_side[0])
+        return output
 
     @classmethod
     def network(cls, network):
@@ -65,7 +68,7 @@ class AsaAddress(object):
         return network
 
     @classmethod
-    def network_group(cls, network):
+    def network_name(cls, network):
         if network.name is None:
             network = cls.network(network[0])
         else:
@@ -76,10 +79,10 @@ class AsaAddress(object):
 class Ace(GenericAce):
 
     def show_run(self):
-        return self._ace_print(expand=False)
+        return self._print(expand=False)
 
     def show(self):
-        return self._ace_print(expand=True)
+        return self._print(expand=True)
 
     def _is_grouped(self):
         """ Does the ACE consist of groupings? """
@@ -92,40 +95,53 @@ class Ace(GenericAce):
         names.append(self.network.destination.name)
         return any(names)
 
-    def _collapsed_print(self, prefix, suffix):
-        output = list()
+    def _print_named(self, permission, logging):
+
+        protocol = AsaAddress.protocol_name(self.transport)
+        source_network = AsaAddress.network_name(self.network.source)
+        destination_network = AsaAddress.network_name(self.network.destination)
+        source_transport = AsaAddress.transport_name(self.transport, 'source')
+        destination_transport = AsaAddress.transport_name(self.transport, 'destination')
+
         line = list()
+        line.append(permission)
+        line.append(protocol)
+        line.append(source_network)
+        line.append(source_transport)
+        line.append(destination_network)
+        line.append(destination_transport)
+        line.append(logging)
 
-        line.append(prefix)
-        line.append(AsaAddress.protocol_group(self.transport))
-
-        for side in ('source', 'destination'):
-            line.append(AsaAddress.network_group(getattr(self.network, side)))
-            if self.transport is not None and self.transport.name is None:
-                tg = AsaAddress.transport_group(getattr(self.transport, side))
-                line.append(tg)
-        line.append(suffix)
+        output = list()
         output.append(' '.join(line).replace('  ', ' ').strip())
         return output
 
-    def _ace_print(self, expand=False):
-        prefix = self._get_permission_string()
-        suffix = str(self.logging)
+    def _print(self, expand=False):
+        permission = self._print_permission()
+        logging = str(self.logging)
 
         output = list()
         if not expand and self._is_grouped():
-            output = self._collapsed_print(prefix, suffix)
+            output = self._print_named(permission, logging)
 
         if expand or (not expand and not self._is_grouped()):
-            for source_network, destination_network in self._iter_networks():
-                for source_transport, destination_transport in self._iter_transport():
+            for source_net, destination_net in self._iter_networks():
+                for source_port, destination_port in self._iter_transport():
+                    protocol = AsaAddress.protocol(source_port, destination_port)
+
+                    source_network = AsaAddress.network(source_net)
+                    destination_network = AsaAddress.network(destination_net)
+
+                    source_transport = AsaAddress.transport(source_port)
+                    destination_transport = AsaAddress.transport(destination_port)
+
                     line = list()
-                    line.append(prefix)
-                    line.append(AsaAddress.protocol(source_transport, destination_transport))
-                    line.append(AsaAddress.network(source_network))
-                    line.append(AsaAddress.transport(source_transport))
-                    line.append(AsaAddress.network(destination_network))
-                    line.append(AsaAddress.transport(destination_transport))
-                    line.append(suffix)
+                    line.append(permission)
+                    line.append(protocol)
+                    line.append(source_network)
+                    line.append(source_transport)
+                    line.append(destination_network)
+                    line.append(destination_transport)
+                    line.append(logging)
                     output.append(' '.join(line).replace('  ', ' ').strip())
         return '\n'.join(output)
