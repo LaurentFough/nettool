@@ -43,7 +43,7 @@ class TestValidation(object):
         assert_false(nu.validate.host(':'))
         assert_false(nu.validate.host(20))
         assert_true(nu.validate.host('host'))
-        assert_raises(ValueError, nu.validate.host, 1, True)
+        assert_raises(TypeError, nu.validate.host, 1, True)
         assert_raises(ValueError, nu.validate.host, 'host.example.com', True)
         assert_raises(ValueError, nu.validate.host, 'h' * 64, True)
 
@@ -54,7 +54,7 @@ class TestValidation(object):
         assert_false(nu.validate.hostname(':'))
         assert_false(nu.validate.hostname(20))
         assert_true(nu.validate.hostname('host'))
-        assert_raises(ValueError, nu.validate.hostname, 1, True)
+        assert_raises(TypeError, nu.validate.hostname, 1, True)
         assert_raises(ValueError, nu.validate.hostname, 'x' * 254, True)
         assert_raises(ValueError, nu.validate.hostname, 'ø', True)
 
@@ -79,7 +79,7 @@ class TestValidation(object):
         assert_false(nu.validate.network('host'))
         assert_false(nu.validate.network(''))
         assert_false(nu.validate.network(1))
-        assert_raises(ValueError, nu.validate.network, 1, True)
+        assert_raises(TypeError, nu.validate.network, 1, True)
         assert_raises(ValueError, nu.validate.network, 'not a network', True)
 
     def test_port_validation(self):
