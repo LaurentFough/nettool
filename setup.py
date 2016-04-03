@@ -96,6 +96,7 @@ setup(
         'test': [
             'coverage',
             'nose',
+            'vulture',
             'ipaddress',
         ],
     },
