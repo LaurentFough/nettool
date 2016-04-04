@@ -87,6 +87,7 @@ class Hostname(object):
                 if nu.validate.hostname(value):
                     domain = '.'.join(value.split('.')[1:])
                     value = value.split('.')[0]
+                    nu.validate.host(value, raise_exception=True)
                     self.domain = domain
                 else:
                     nu.validate.host(value, raise_exception=True)
