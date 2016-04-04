@@ -133,3 +133,11 @@ class TestHostname(object):
         host1 = Hostname('host1', '1.1.1.1')
         host2 = Hostname('host', '2.2.2.2')
         assert_not_equals(host1, host2)
+
+    def test_name_setter(self):
+        test_hostname = 'host.test.com'
+        update_hostname = 'host.example.com'
+        hostname = Hostname(test_hostname)
+        assert_equals(hostname.fqdn, test_hostname)
+        hostname.name = update_hostname
+        assert_equals(hostname.fqdn, update_hostname)
