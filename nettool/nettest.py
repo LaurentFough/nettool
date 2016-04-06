@@ -78,7 +78,7 @@ class NetTest(object):
         def network(value, raise_exception=False):
             if not isinstance(value, basestring):
                 if raise_exception:
-                    raise ValueError('Invalid type \'{}\''.format(type(value)))
+                    raise TypeError('Invalid type \'{}\''.format(type(value)))
                 return False
             try:
                 value = unicode(value)
@@ -93,7 +93,7 @@ class NetTest(object):
         def _host_base_checks(value, raise_exception=False):
             if not isinstance(value, basestring):
                 if raise_exception:
-                    raise ValueError('Invalid type \'{}\''.format(type(value)))
+                    raise TypeError('Invalid type \'{}\''.format(type(value)))
                 return False
             try:
                 if isinstance(value, unicode):
@@ -122,7 +122,7 @@ class NetTest(object):
         def host(value, raise_exception=False):
             if not isinstance(value, basestring):
                 if raise_exception:
-                    raise ValueError('Invalid type \'{}\''.format(type(value)))
+                    raise TypeError('Invalid type \'{}\''.format(type(value)))
                 return False
             if not NetTest.validate._host_base_checks(value, raise_exception=raise_exception):
                 return False
@@ -144,7 +144,7 @@ class NetTest(object):
         def hostname(value, raise_exception=False):
             if not isinstance(value, basestring):
                 if raise_exception:
-                    raise ValueError('Invalid type \'{}\''.format(type(value)))
+                    raise TypeError('Invalid type \'{}\''.format(type(value)))
                 return False
             if len(value) > 253:
                 if raise_exception:

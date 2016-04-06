@@ -33,21 +33,31 @@ class TestVendorCiscoAsaAce(object):
         expected = 'permit ip 0.0.0.0 0.0.0.0 0.0.0.0 0.0.0.0'
         assert_equals(ace.show_run(), expected)
 
-    def test_show_run_protocol(self):
+    def test_show_run_source_tcp_object_group(self):
+        ace = Ace(transport='tcp 22 22 1 65535')
+        ace.transport.source.name = 'ssh'
+        expected = 'permit tcp 0.0.0.0 0.0.0.0 object-group ssh 0.0.0.0 0.0.0.0'
+        assert_equals(ace.show_run(), expected)
+
+    def test_show_run_destination_tcp_object_group(self):
         ace = Ace(transport='tcp 22')
         ace.transport.destination.name = 'ssh'
         expected = 'permit tcp 0.0.0.0 0.0.0.0 0.0.0.0 0.0.0.0 object-group ssh'
         assert_equals(ace.show_run(), expected)
-        ace.transport.destination.name = None
-        ace.transport.source.remove('tcp 1-65535')
-        ace.transport.destination.remove('tcp 22')
+
+    def test_show_run_source_udp_object_group(self):
+        ace = Ace(transport='udp 162 162 1 65535')
         ace.transport.source.name = 'snmp-trap'
-        ace.transport.source.add('udp 162')
-        ace.transport.destination.add('udp 1-65535')
         expected = 'permit udp 0.0.0.0 0.0.0.0 object-group snmp-trap 0.0.0.0 0.0.0.0'
         assert_equals(ace.show_run(), expected)
 
-    def test_show_run_network(self):
+    def test_show_run_destination_udp_object_group(self):
+        ace = Ace(transport='udp 1 65535 162 162')
+        ace.transport.destination.name = 'snmp-trap'
+        expected = 'permit udp 0.0.0.0 0.0.0.0 0.0.0.0 0.0.0.0 object-group snmp-trap'
+        assert_equals(ace.show_run(), expected)
+
+    def test_show_run_network_object_groups(self):
         ace = Ace(network='1.2.3.0/24 4.5.6.0/24')
         ace.network.source.name = 'source'
         ace.network.destination.name = 'destination'
@@ -67,7 +77,7 @@ class TestVendorCiscoAsaAce(object):
         expected = 'permit ip 0.0.0.0 0.0.0.0 0.0.0.0 0.0.0.0'
         assert_equals(ace.show(), expected)
 
-    def test_show_protocol(self):
+    def test_show_tcp(self):
         ace = Ace(transport='tcp 22')
         ace.transport.destination.name = 'ssh'
         expected = 'permit tcp 0.0.0.0 0.0.0.0 0.0.0.0 0.0.0.0 eq 22'
