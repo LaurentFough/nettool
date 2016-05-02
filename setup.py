@@ -94,9 +94,11 @@ setup(
     extras_require={
         # 'dev': ['check-manifest'],
         'test': [
-            'coverage',
             'nose',
-            'vulture',
+            'click',
+            'pytest',
+            'coverage',
+            'mock',
             'ipaddress',
         ],
     },
