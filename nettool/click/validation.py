@@ -35,17 +35,6 @@ class ArgumentValidation(object):
         return value
 
     @classmethod
-    def search_term(cls, ctx, param, value):
-        if isinstance(value, tuple):
-            value = ' '.join(value)
-            if not value:
-                return '*'
-        if not isinstance(value, basestring):
-            raise click.BadParameter('Invalid search term')
-        value = '*{}*'.format(value).replace('**', '*')
-        return value
-
-    @classmethod
     def hostname(cls, ctx, param, value):
         return cls._type_validation('hostname', value)
 
