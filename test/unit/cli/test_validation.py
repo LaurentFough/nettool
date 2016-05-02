@@ -2,7 +2,7 @@
 
 from mock import Mock
 
-from nettool.click.validation import ArgumentValidation
+from nettool.cli.validation import ArgumentValidation
 
 
 class TestArgumentValidation(object):

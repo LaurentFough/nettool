@@ -97,6 +97,7 @@ setup(
             'nose',
             'click',
             'pytest',
+            'pytest-cov',
             'coverage',
             'mock',
             'ipaddress',
