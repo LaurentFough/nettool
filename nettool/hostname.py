@@ -8,6 +8,8 @@ from nettool.nettest import NetTest as nu
 
 class Hostname(object):
     def __init__(self, name=None, ip=None):
+        if name is None and ip is None:
+            raise ValueError('Must specify a name or ip')
         if isinstance(ip, basestring) and not ip.strip():
             ip = None
         if ip is None and nu.validate.ip(name):

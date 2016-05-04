@@ -14,6 +14,7 @@ class NetTest(object):
         .network.network_address.exploded for x in range(0, 33)]
 
     class validate(object):
+        """ Network validation """
         @staticmethod
         def _port(port, raise_exception=False):
             if isinstance(port, basestring) and port.isdigit():
@@ -31,14 +32,17 @@ class NetTest(object):
 
         @classmethod
         def tcp_port(cls, port, raise_exception=False):
+            """ Layer 4 TCP port validation """
             return cls._port(port, raise_exception=raise_exception)
 
         @classmethod
         def udp_port(cls, port, raise_exception=False):
+            """ Layer 4 UDP port validation """
             return cls._port(port, raise_exception=raise_exception)
 
         @staticmethod
         def netmask(netmask, raise_exception=False):
+            """ Network subnet mask validation """
             valid = netmask in NetTest.netmasks
             if not valid and raise_exception:
                 raise ValueError('Invalid netmask {}'.format(netmask))
@@ -46,6 +50,7 @@ class NetTest(object):
 
         @staticmethod
         def wildcard(wildcard, raise_exception=False):
+            """ Network wildcard mask validation """
             valid = wildcard in NetTest.wildcards
             if not valid and raise_exception:
                 raise ValueError('Invalid wildcard {}'.format(wildcard))
@@ -53,13 +58,21 @@ class NetTest(object):
 
         @staticmethod
         def prefix(prefix, raise_exception=False):
+            """ CIDR prefix length validation """
             valid = prefix in range(0, 33)
             if not valid and raise_exception:
                 raise ValueError('Invalid prefix {}'.format(prefix))
             return valid
 
-        @staticmethod
-        def ip(value, raise_exception=False):
+        @classmethod
+        def ip(cls, value, raise_exception=False):
+            """ IP address validation """
+            if cls.network(value):
+                value = NetTest.convert.string.cidr(value)
+                if value.endswith('/32'):
+                    value = value.split('/')[0]
+                else:
+                    return False
             if not isinstance(value, basestring):
                 if raise_exception:
                     raise TypeError('Invalid type \'{}\''.format(type(value)))
@@ -74,12 +87,22 @@ class NetTest(object):
                 return False
             return True
 
-        @staticmethod
-        def network(value, raise_exception=False):
+        @classmethod
+        def network(cls, value, raise_exception=False):
+            """ Network address validation """
             if not isinstance(value, basestring):
                 if raise_exception:
                     raise TypeError('Invalid type \'{}\''.format(type(value)))
                 return False
+            terms = value.split()
+            if len(terms) is 2:
+                if cls.ip(terms[0]):
+                    if cls.netmask(terms[1]):
+                        terms[1] = NetTest.convert.netmask.prefix(terms[1])
+                    elif cls.wildcard(terms[1]):
+                        terms[1] = NetTest.convert.wildcard.prefix(terms[1])
+                    terms[1] = unicode(terms[1])
+                value = u'/'.join(terms)
             try:
                 value = unicode(value)
                 ipaddress.IPv4Interface(value)
@@ -142,6 +165,7 @@ class NetTest(object):
 
         @staticmethod
         def hostname(value, raise_exception=False):
+            """ DNS hostname validation """
             if not isinstance(value, basestring):
                 if raise_exception:
                     raise TypeError('Invalid type \'{}\''.format(type(value)))
@@ -161,12 +185,12 @@ class NetTest(object):
                     return False
             return True
 
-    class coerce(object):
+    class convert(object):
 
         class string(object):
 
             @staticmethod
-            def _base_host_coerce(value):
+            def _base_host_convert(value):
                 replacements = ((' ', '-'), ('(', '-'), (')', '-'), ('_', '-'),
                                 ('/', '-'), ('\\', '-'), (':', '-'), ('--', '-'), )
                 for before, after in replacements:
@@ -182,53 +206,95 @@ class NetTest(object):
 
             @classmethod
             def host(cls, value):
-                value = cls.coerce.string._base_host_coerce(value)
+                value = cls._base_host_convert(value)
                 cls.validate.host(value, raise_exception=True)
                 return value
 
             @classmethod
+            def _standardize_cidr_format(cls, value):
+                if not isinstance(value, basestring):
+                    raise TypeError('Invalid type \'{}\''.format(type(value)))
+                terms = value.split()
+                if len(terms) is 2:
+                    if NetTest.validate.ip(terms[0]):
+                        if NetTest.validate.netmask(terms[1]):
+                            terms[1] = NetTest.convert.netmask.prefix(terms[1])
+                        elif NetTest.validate.wildcard(terms[1]):
+                            terms[1] = NetTest.convert.wildcard.prefix(terms[1])
+                        terms[1] = unicode(terms[1])
+                    value = u'/'.join(terms)
+                if '/' not in value:
+                    value = value + '/32'
+                value = unicode(value)
+                return value
+
+            @classmethod
+            def cidr(cls, value):
+                """ Coerce a string to a network CIDR """
+                value = cls._standardize_cidr_format(value)
+                value = ipaddress.IPv4Interface(value).network.exploded
+                return value
+
+            @classmethod
+            def ip(cls, value):
+                """ String to IP conversion """
+                value = cls._standardize_cidr_format(value)
+                NetTest.validate.ip(value, raise_exception=True)
+                value = value.split('/')[0]
+                return value
+
+            @classmethod
             def hostname(cls, value):
-                value = cls._base_host_coerce(value)
+                """ Coerce a string to DNS hostname """
+                value = cls._base_host_convert(value)
                 NetTest.validate.hostname(value, raise_exception=True)
                 return value
 
-    class convert(object):
-
         class prefix(object):
+            """ CIDR prefix conversions """
+
             @staticmethod
             def netmask(prefix):
+                """ CIDR prefix to subnet mask conversion """
                 if not NetTest.validate.prefix(prefix):
                     raise ValueError(u'Invalid prefix length \'{}\''.format(prefix))
                 return NetTest.netmasks[prefix]
 
             @staticmethod
             def wildcard(prefix):
+                """ CIDR prefix to wildcard mask conversion """
                 if not NetTest.validate.prefix(prefix):
                     raise ValueError(u'Invalid prefix length \'{}\''.format(prefix))
                 return NetTest.wildcards[prefix]
 
         class netmask(object):
+            """ Network subnet mask conversions """
             @staticmethod
             def wildcard(netmask):
+                """ Network subnet mask to wildcard mask conversion """
                 if not NetTest.validate.netmask(netmask):
                     raise ValueError(u'Invalid netmask \'{}\''.format(netmask))
                 return NetTest.wildcards[NetTest.netmasks.index(netmask)]
 
             @staticmethod
             def prefix(netmask):
+                """ Network subnet mask to CIDR prefix conversion """
                 if not NetTest.validate.netmask(netmask):
                     raise ValueError(u'Invalid netmask \'{}\''.format(netmask))
                 return NetTest.netmasks.index(netmask)
 
         class wildcard(object):
+            """ Network wildcard mask conversions """
             @staticmethod
             def netmask(wildcard):
+                """ Network wildcard mask to netmask conversion """
                 if not NetTest.validate.wildcard(wildcard):
                     raise ValueError(u'Invalid wildcard \'{}\''.format(wildcard))
                 return NetTest.netmasks[NetTest.wildcards.index(wildcard)]
 
             @staticmethod
             def prefix(wildcard):
+                """ Network wildcard mask to cidr prefix conversion """
                 if not NetTest.validate.wildcard(wildcard):
                     raise ValueError(u'Invalid wildcard \'{}\''.format(wildcard))
                 return NetTest.wildcards.index(wildcard)

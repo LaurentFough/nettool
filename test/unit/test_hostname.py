@@ -28,6 +28,7 @@ class TestHostname(object):
         assert_equals(Hostname('test', '2.3.4.5').ip, '2.3.4.5')
 
     def test_initilization_invalid(self):
+        assert_raises(ValueError, Hostname, None, None)
         assert_raises(ValueError, Hostname, '1.2.3.4', '2.3.4.5')
 
     def test_validation_domain_length(self):
