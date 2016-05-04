@@ -60,27 +60,39 @@ class TestConversion(object):
     def test_prefix_to_wildcard_conversion_invalid_input(self):
         assert_raises(ValueError, nu.convert.prefix.wildcard, 'invalid')
 
-    def test_coerce_string_to_hostname(self):
-        assert_equals(nu.coerce.string.hostname('host name.example.com'), 'host-name.example.com')
-        assert_equals(nu.coerce.string.hostname('(host)name.example.com'), 'host-name.example.com')
-        assert_equals(nu.coerce.string.hostname('HOSTNAME.EXAMPLE.COM'), 'hostname.example.com')
-        assert_equals(nu.coerce.string.hostname('-hostname.example.com.'), 'hostname.example.com')
-        assert_equals(nu.coerce.string.hostname('host_name.example.com'), 'host-name.example.com')
-        assert_equals(nu.coerce.string.hostname(' hostname.example.com '), 'hostname.example.com')
-        hostname = nu.coerce.string.hostname(' hostname(a)-1.example.com ')
-        assert_equals(hostname, 'hostname-a-1.example.com')
-        assert_equals(nu.coerce.string.hostname(u'ø.example.com'), 'o.example.com')
-        assert_equals(nu.coerce.string.hostname(u'å.example.com'), 'a.example.com')
-        assert_equals(nu.coerce.string.hostname('host/a.example.com'), 'host-a.example.com')
-        assert_equals(nu.coerce.string.hostname('host\\a.example.com'), 'host-a.example.com')
-        assert_equals(nu.coerce.string.hostname('host:a.example.com'), 'host-a.example.com')
+    def test_convert_string_to_cidr(self):
+        assert nu.convert.string.cidr('1.2.3.1/24') == '1.2.3.0/24'
+        assert nu.convert.string.cidr('1.2.3.0 255.255.255.0') == '1.2.3.0/24'
+        assert nu.convert.string.cidr('1.2.3.0 255.255.255.255') == '1.2.3.0/32'
+        assert nu.convert.string.cidr('1.2.3.0 0.0.0.255') == '1.2.3.0/24'
 
-    def test_coerce_string_to_host(self):
-        assert_equals(nu.coerce.string.hostname('host name'), 'host-name')
-        assert_equals(nu.coerce.string.hostname('(host)name'), 'host-name')
-        assert_equals(nu.coerce.string.hostname('HOSTNAME'), 'hostname')
-        assert_equals(nu.coerce.string.hostname('-hostname.'), 'hostname')
-        assert_equals(nu.coerce.string.hostname('host_name'), 'host-name')
-        assert_equals(nu.coerce.string.hostname(' hostname '), 'hostname')
-        assert_equals(nu.coerce.string.hostname(u'ø'), 'o')
-        assert_equals(nu.coerce.string.hostname(u'å'), 'a')
+    def test_convert_string_to_ip(self):
+        assert nu.convert.string.ip('1.2.3.1/24') == '1.2.3.1'
+        assert nu.convert.string.ip('1.2.3.0 255.255.255.0') == '1.2.3.0'
+        assert nu.convert.string.ip('1.2.3.0 255.255.255.255') == '1.2.3.0'
+        assert nu.convert.string.ip('1.2.3.0 0.0.0.255') == '1.2.3.0'
+
+    def test_convert_string_to_hostname(self):
+        assert_equals(nu.convert.string.hostname('host name.example.com'), 'host-name.example.com')
+        assert_equals(nu.convert.string.hostname('(host)name.example.com'), 'host-name.example.com')
+        assert_equals(nu.convert.string.hostname('HOSTNAME.EXAMPLE.COM'), 'hostname.example.com')
+        assert_equals(nu.convert.string.hostname('-hostname.example.com.'), 'hostname.example.com')
+        assert_equals(nu.convert.string.hostname('host_name.example.com'), 'host-name.example.com')
+        assert_equals(nu.convert.string.hostname(' hostname.example.com '), 'hostname.example.com')
+        hostname = nu.convert.string.hostname(' hostname(a)-1.example.com ')
+        assert_equals(hostname, 'hostname-a-1.example.com')
+        assert_equals(nu.convert.string.hostname(u'ø.example.com'), 'o.example.com')
+        assert_equals(nu.convert.string.hostname(u'å.example.com'), 'a.example.com')
+        assert_equals(nu.convert.string.hostname('host/a.example.com'), 'host-a.example.com')
+        assert_equals(nu.convert.string.hostname('host\\a.example.com'), 'host-a.example.com')
+        assert_equals(nu.convert.string.hostname('host:a.example.com'), 'host-a.example.com')
+
+    def test_convert_string_to_host(self):
+        assert_equals(nu.convert.string.hostname('host name'), 'host-name')
+        assert_equals(nu.convert.string.hostname('(host)name'), 'host-name')
+        assert_equals(nu.convert.string.hostname('HOSTNAME'), 'hostname')
+        assert_equals(nu.convert.string.hostname('-hostname.'), 'hostname')
+        assert_equals(nu.convert.string.hostname('host_name'), 'host-name')
+        assert_equals(nu.convert.string.hostname(' hostname '), 'hostname')
+        assert_equals(nu.convert.string.hostname(u'ø'), 'o')
+        assert_equals(nu.convert.string.hostname(u'å'), 'a')
