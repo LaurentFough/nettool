@@ -9,7 +9,7 @@ Network objects for network admins
 ## Install
 
 ```bash
-pip install git+git://github.com/heyglen/nettool.git#egg=nettool
+pip install git+ssh://git@github.com/heyglen/nettool.git#egg=nettool
 ```
 
 ## Uninstall
