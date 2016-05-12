@@ -19,9 +19,20 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 
 install_requires = [
+    'click',
     'ipaddress',
     'unidecode'
 ],
+
+test_requires = [
+    'nose',
+    'click',
+    'pytest',
+    'pytest-cov',
+    'coverage',
+    'mock',
+    'ipaddress',
+]
 
 setup(
     name='nettool',
@@ -93,15 +104,7 @@ setup(
     # $ pip install -e .[dev,test]
     extras_require={
         # 'dev': ['check-manifest'],
-        'test': [
-            'nose',
-            'click',
-            'pytest',
-            'pytest-cov',
-            'coverage',
-            'mock',
-            'ipaddress',
-        ],
+        'test': test_requires,
     },
 
     # If there are data files included in your packages that need to be
