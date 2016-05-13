@@ -47,6 +47,17 @@ class TestValidation(object):
         assert_raises(ValueError, nu.validate.host, 'host.example.com', True)
         assert_raises(ValueError, nu.validate.host, 'h' * 64, True)
 
+    def test_is_subnet(self):
+        assert nu.validate.is_subnet('1.2.3.1', '1.2.3.1')
+        assert nu.validate.is_subnet('1.2.3.1', '1.2.3.1/24')
+        assert nu.validate.is_subnet('1.2.3.1/24', '1.2.3.1/24')
+        assert nu.validate.is_subnet('1.2.3.0 255.255.255.0', '1.2.3.1/16')
+        assert nu.validate.is_subnet('1.2.3.1/32', '1.2.3.0 0.0.0.255')
+
+        assert not nu.validate.is_subnet('1.2.3.1/24', '1.2.3.1')
+        assert not nu.validate.is_subnet('1.2.3.0 0.0.0.255', '1.2.3.1/32')
+        assert not nu.validate.is_subnet('1.2.3.1/16', '1.2.3.0 255.255.255.0')
+
     def test_hostname_validation(self):
         assert_true(nu.validate.hostname('host.example.com'))
         assert_false(nu.validate.hostname(''))

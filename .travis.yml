@@ -4,8 +4,12 @@ python:
 # command to install dependencies
 install:
   - pip install flake8
-  - pip install coveralls
   - pip install radon
+  - pip install click
+  - pip install ipaddress
+  - pip install pytest
+  - pip install pytest-cov
+  - pip install coveralls
   - pip install .
 # command to run tests
 before_script:
@@ -13,6 +17,6 @@ before_script:
   - radon cc nettool --total-average --min C
   - flake8 --max-line-length=100 --max-complexity 10
 script:
-  - nosetests -q --with-coverage --cover-package=nettool --cover-min-percentage 80
+  - py.test test --cov=nettool -q
 after_success:
   - coveralls

@@ -63,8 +63,27 @@ class TestConversion(object):
     def test_convert_string_to_cidr(self):
         assert nu.convert.string.cidr('1.2.3.1/24') == '1.2.3.0/24'
         assert nu.convert.string.cidr('1.2.3.0 255.255.255.0') == '1.2.3.0/24'
-        assert nu.convert.string.cidr('1.2.3.0 255.255.255.255') == '1.2.3.0/32'
         assert nu.convert.string.cidr('1.2.3.0 0.0.0.255') == '1.2.3.0/24'
+        assert nu.convert.string.cidr('1.2.3.0 255.255.255.255') == '1.2.3.0/32'
+
+    def test_convert_string_to_network_address(self):
+        assert nu.convert.string.network_address('1.2.3.1/24') == '1.2.3.0'
+        assert nu.convert.string.network_address('1.2.3.0 255.255.255.0') == '1.2.3.0'
+        assert nu.convert.string.network_address('1.2.3.0 255.255.255.255') == '1.2.3.0'
+        assert nu.convert.string.network_address('1.2.3.0 0.0.0.255') == '1.2.3.0'
+
+    def test_convert_string_to_broadcast(self):
+        assert nu.convert.string.broadcast_address('1.2.3.1/24') == '1.2.3.255'
+        assert nu.convert.string.broadcast_address('1.2.3.0 255.255.255.0') == '1.2.3.255'
+        assert nu.convert.string.broadcast_address('1.2.3.0 255.255.255.255') == '1.2.3.0'
+        assert nu.convert.string.broadcast_address('1.2.3.0 0.0.0.255') == '1.2.3.255'
+
+    def test_convert_string_longest_match(self):
+        assert nu.convert.string.network_longest_match('1.2.3.1/24') == '1.2.3.'
+        assert nu.convert.string.network_longest_match('1.2.3.1/8') == '1.'
+        assert nu.convert.string.network_longest_match('1.2.3.0 255.255.255.0') == '1.2.3.'
+        assert nu.convert.string.network_longest_match('1.2.3.0 255.255.255.255') == '1.2.3.0'
+        assert nu.convert.string.network_longest_match('1.2.3.0 0.0.0.255') == '1.2.3.'
 
     def test_convert_string_to_ip(self):
         assert nu.convert.string.ip('1.2.3.1/24') == '1.2.3.1'

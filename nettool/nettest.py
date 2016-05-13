@@ -65,6 +65,20 @@ class NetTest(object):
             return valid
 
         @classmethod
+        def _get_network_object(cls, network):
+            cls.ip(network, raise_exception=True) or cls.ip(network, raise_exception=True)
+            network = NetTest.convert.string.cidr(network)
+            network = ipaddress.IPv4Interface(network).network
+            return network
+
+        @classmethod
+        def is_subnet(cls, subnet, supernet):
+            """ Network is a subnet of the given supernet """
+            subnet = cls._get_network_object(subnet)
+            supernet = cls._get_network_object(supernet)
+            return subnet.subnet_of(supernet)
+
+        @classmethod
         def ip(cls, value, raise_exception=False):
             """ IP address validation """
             if cls.network(value):
@@ -230,10 +244,35 @@ class NetTest(object):
 
             @classmethod
             def cidr(cls, value):
-                """ Coerce a string to a network CIDR """
+                """ Convert a string to a network CIDR """
                 value = cls._standardize_cidr_format(value)
                 value = ipaddress.IPv4Interface(value).network.exploded
                 return value
+
+            @classmethod
+            def network_longest_match(cls, value):
+                """ Convert a string to a network address longest prefix match """
+                network = cls.network_address(value)
+                broadcast = cls.broadcast_address(value)
+                common = ''
+                for i1, i2 in zip(network, broadcast):
+                    if i1 == i2:
+                        common = ''.join([common, i1])
+                    else:
+                        break
+                return common
+
+            @staticmethod
+            def network_address(value):
+                """ Convert a string to a network IP """
+                value = NetTest.convert.string.cidr(value)
+                return ipaddress.IPv4Network(value).network_address.exploded
+
+            @staticmethod
+            def broadcast_address(value):
+                """ Convert a string to a broadcast IP """
+                value = NetTest.convert.string.cidr(value)
+                return ipaddress.IPv4Network(value).broadcast_address.exploded
 
             @classmethod
             def ip(cls, value):
@@ -245,7 +284,7 @@ class NetTest(object):
 
             @classmethod
             def hostname(cls, value):
-                """ Coerce a string to DNS hostname """
+                """ Convert a string to DNS hostname """
                 value = cls._base_host_convert(value)
                 NetTest.validate.hostname(value, raise_exception=True)
                 return value
