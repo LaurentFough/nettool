@@ -8,24 +8,26 @@ from nose.tools import assert_raises, assert_equals, assert_not_equals
 class TestHostname(object):
 
     def test_initilization(self):
-        assert_equals(Hostname(name='test', ip=None).ip, None)
-        assert_equals(Hostname(name='test', ip='').ip, None)
-        assert_equals(Hostname(name='test', ip=' ').ip, None)
+        assert Hostname(name='test', ip=None).ip is None
+        assert Hostname(name='test', ip='').ip is None
+        assert Hostname(name='test', ip=' ').ip is None
         hostname = 'host1'
         host = Hostname(hostname)
-        assert_equals(host.domain, '')
-        assert_equals(host.fqdn, hostname)
+        assert host.domain == ''
+        assert host.fqdn == hostname
         hostname = 'host1.example'
         host = Hostname(hostname)
-        assert_equals(host.name, 'host1')
-        assert_equals(host.domain, 'example')
-        assert_equals(host.fqdn, hostname)
+        assert host.name == 'host1'
+        assert host.domain == 'example'
+        assert host.fqdn == hostname
         hostname = 'host1.example.com'
         host = Hostname(hostname)
-        assert_equals(host.name, 'host1')
-        assert_equals(host.domain, 'example.com')
-        assert_equals(host.fqdn, hostname)
-        assert_equals(Hostname('test', '2.3.4.5').ip, '2.3.4.5')
+        assert host.name == 'host1'
+        assert host.domain == 'example.com'
+        assert host.fqdn == hostname
+        assert Hostname('test', '2.3.4.5').ip == '2.3.4.5'
+        assert Hostname('test', '2.3.4.5').routing_domain is None
+        assert Hostname('test', '2.3.4.5', 'rd01').routing_domain == 'rd01'
 
     def test_initilization_invalid(self):
         assert_raises(ValueError, Hostname, None, None)
@@ -73,13 +75,13 @@ class TestHostname(object):
     def test_eqality_name(self):
         hostname = 'host1.example.com'
         host1 = Hostname(hostname)
-        assert_equals(host1, hostname)
-        assert_equals(host1, hostname)
-        assert_equals(host1, hostname.upper())
-        assert_equals(host1, 'host1'.upper())
-        assert_equals(host1, hostname.split('.')[0])
-        assert_not_equals(host1, 'example.com')
-        assert_not_equals(host1, 'host')
+        assert host1 == hostname
+        assert host1 == hostname
+        assert host1 == hostname.upper()
+        assert host1 == 'host1'.upper()
+        assert host1 == hostname.split('.')[0]
+        assert host1 != 'example.com'
+        assert host1 != 'host'
 
         # No IPs specified
         host1 = Hostname('test1')
@@ -91,36 +93,51 @@ class TestHostname(object):
         host = Hostname('test', ip=ip)
         assert_equals(host, ip)
 
+    def test_eqality_routing_domain(self):
+        hostname = 'test'
+        ip = '1.1.1.1'
+        rd01 = 'test_routing_domain'
+        rd02 = 'TEST_ROUTING_DOMAIN'
+        rd03 = 'TEST_ROUTING_DOMAIN01'
+        assert Hostname(hostname, ip=ip, routing_domain=rd01) \
+            == Hostname(hostname, ip=ip, routing_domain=rd02)
+        assert Hostname(hostname, ip=ip, routing_domain=rd01) \
+            != Hostname(hostname, ip=ip, routing_domain=rd03)
+
     def test_equality_hostnames(self):
         # Total match
         host1 = Hostname('host1', '1.1.1.1')
         host2 = Hostname('host1', '1.1.1.1')
-        assert_equals(host1, host2)
+        assert host1 == host2
 
         # Non-fqdn hostname to fqdn hostname match
-        assert_equals(Hostname('host.example.com', '1.1.1.1'), Hostname('host', '1.1.1.1'))
-        assert_equals(Hostname('host.example.com', '1.1.1.1'), Hostname('host', '1.1.1.2'))
+        assert Hostname('host.example.com', '1.1.1.1') == Hostname('host', '1.1.1.1')
+        assert Hostname('host.example.com', '1.1.1.1') == Hostname('host', '1.1.1.2')
 
         # Hostname match
         host3 = Hostname('host1', '2.2.2.2')
-        assert_equals(host1, host3)
+        assert host1 == host3
         host3 = Hostname('host1')
-        assert_equals(host1, host3)
+        assert host1 == host3
 
         # Name in FQDN match
         host4 = Hostname('host1.example.com', '3.3.3.3')
-        assert_equals(host1, host4)
+        assert host1 == host4
         host4 = Hostname('host1.example.com')
-        assert_equals(host1, host4)
+        assert host1 == host4
 
         # FQDN match
         host5 = Hostname('host1.example.com', '4.4.4.4')
-        assert_equals(host4, host5)
+        assert host4 == host5
         host5 = Hostname('host1.example.com')
-        assert_equals(host4, host5)
+        assert host4 == host5
 
         # IP match
-        assert_equals(Hostname('host1', '1.1.1.1'), Hostname('host2', '1.1.1.1'))
+        assert Hostname('host1', '1.1.1.1') == Hostname('host2', '1.1.1.1')
+
+        # Routing Domain
+        assert Hostname('host1', '1.1.1.1', routing_domain='1') == \
+            Hostname('host2', '1.1.1.1', routing_domain='1')
 
     def test_ineqality_hosts(self):
         host1 = Hostname('host1', '1.1.1.1')
@@ -129,11 +146,15 @@ class TestHostname(object):
 
         host1 = Hostname('host1.example.com')
         host2 = Hostname('host1.contoso.com')
-        assert_not_equals(host1, host2)
+        assert host1 != host2
 
         host1 = Hostname('host1', '1.1.1.1')
         host2 = Hostname('host', '2.2.2.2')
-        assert_not_equals(host1, host2)
+        assert host1 != host2
+
+        host1 = Hostname('host1', '1.1.1.1', routing_domain='1')
+        host1 = Hostname('host1', '1.1.1.1', routing_domain='2')
+        assert host1 != host2
 
     def test_name_setter(self):
         test_hostname = 'host.test.com'
