@@ -7,7 +7,7 @@ from nettool.nettest import NetTest as nu
 
 
 class Hostname(object):
-    def __init__(self, name=None, ip=None):
+    def __init__(self, name=None, ip=None, routing_domain=None):
         if name is None and ip is None:
             raise ValueError('Must specify a name or ip')
         if isinstance(ip, basestring) and not ip.strip():
@@ -18,6 +18,7 @@ class Hostname(object):
         else:
             self.ip = ip
         self._initialize_name(name)
+        self.routing_domain = routing_domain
 
     def _initialize_name(self, value):
         self.domain = ''
@@ -96,6 +97,22 @@ class Hostname(object):
         self._name = value
 
     @property
+    def routing_domain(self):
+        if not hasattr(self, '_routing_domain'):
+            self._routing_domain = None
+        return self._routing_domain
+
+    @routing_domain.setter
+    def routing_domain(self, value):
+        if value is None:
+            value = None
+        elif isinstance(value, basestring):
+            value = Hostname._clean_name(value)
+        else:
+            raise ValueError('Routing domain must be a string')
+        self._routing_domain = value
+
+    @property
     def domain(self):
         return self._domain
 
@@ -159,6 +176,8 @@ class Hostname(object):
         if isinstance(value, basestring):
             return self._string_equality(value)
         elif isinstance(value, Hostname):
+            if self.routing_domain != value.routing_domain:
+                return False
             if self.domain and value.domain:
                 if self.fqdn == value.fqdn:
                     return True
